@@ -7,6 +7,8 @@ name = "pypi"
 llama-index = "*"
 llama-index-embeddings-huggingface = "*"
 llama-index-llms-ollama = "*"
+chromadb = "*"
+llama-index-vector-stores-chroma = "*"
 
 [dev-packages]
 
