@@ -2,17 +2,8 @@ from llama_index.llms.ollama import Ollama
 from pathlib import Path
 import chromadb
 from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader, StorageContext
-# from llama_index.storage.storage_context import StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-
-# from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings, ServiceContext
-# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-# from llama_index.llms.ollama import Ollama
-# from llama_index.vector_stores.chroma import ChromaVectorStore
-# from llama_index.storage.storage_context import StorageContext
-# from llama_index import StorageContext
-# import chromadb
 
 print("Starting")
 
@@ -40,5 +31,4 @@ query_engine = index.as_query_engine()
 print("RESPONSE")
 response = query_engine.query("What does Develop Great Managers say about about where Laura Ortman grew up?")
 print(response)
-
 print("DONE")
