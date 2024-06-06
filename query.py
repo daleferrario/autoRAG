@@ -7,8 +7,10 @@ import sys, datetime, logging, chromadb
 
 print("STARTING")
 
+logging_info=False
+
 if ((len(sys.argv) == 2) and (sys.argv[1] == "-v")):
-    verbose=True
+    logging_info=True
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(message)s",
@@ -24,7 +26,7 @@ embedding_model_used = "BAAI/bge-base-en-v1.5"
 collection_name_used = "dgm_data"
 chunk_size_used = 512
 chunk_overlap_used = 20
-personality_used = "Respond as an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines"
+# personality_used = "Respond as an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines"
 
 # Set embeddings model
 Settings.embed_model = HuggingFaceEmbedding(model_name=embedding_model_used)
@@ -57,27 +59,27 @@ logging.info("DOCUMENTS INDEXED")
 
 prompt_input=""
 while(prompt_input != "done"):
-    prompt_input = input("Enter Prompt (quit to stop): ")
+    prompt_input = input("Enter Prompt ('done' to stop): ")
+    logging.info("PROMPT: %s", prompt_input)
 
     #prompt_input = "What does Develop Great Managers say about about where Laura Ortman grew up?"
 
 
-    if verbose:
-        logging.info("RETRIEVING CHUNKS FOR %s", prompt_input)
+    if (logging_info):
+        logging.info("RETRIEVING CHUNKS")
         retriever = index.as_retriever()
         relevant_docs = retriever.retrieve(prompt_input)
-        #for result in relevant_docs:
-        #    document_id=result.document_id
-        #    chunk_data=index.get_document(document_id)
-        #    logging.info(chunk_data)
-        logging.info("RELEVANT DOCS: %s", relevant_docs)
-        logging.info(relevant_docs)
+        for result in relevant_docs:
+            chunk_data=result.get_text()
+            chunk_filename=result.metadata["file_name"]
+            logging.info("CHUNK")
+            logging.info("FILENAME: %s", chunk_filename)
+            logging.info("%s", chunk_data)
 
     ## Query
-    logging.info("PROMPT: %s", prompt_input)
-    #print(f"Prompt: {prompt_input}")
     response = query_engine.query(prompt_input)
-    logging.info("%s", prompt_input)
+    logging.info("RESPONSE")
+    logging.info("%s", response)
     print(response)
 
 logging.info("DONE")
