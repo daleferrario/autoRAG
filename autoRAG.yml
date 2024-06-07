@@ -9,6 +9,10 @@ Parameters:
   KeyPair:
     Description: Name of the keypair to use for SSH access
     Type: String
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.small
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -79,8 +83,10 @@ Resources:
   WebServerInstance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t3.micro
-      ImageId: !Ref LatestAmiId
+      InstanceType:
+        Ref: InstanceType
+      ImageId:
+        Ref: LatestAmiId
       NetworkInterfaces:
         - GroupSet:
             - Ref: WebServerSecurityGroup
