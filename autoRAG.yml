@@ -98,6 +98,14 @@ Resources:
           sudo apt install apache2 -y
           sudo systemctl start apache2
           echo "<html><body><h1>Awesome !!!</h1></body></html>" > /var/www/html/index.html
+          sudo apt install curl
+          curl -fsSL https://ollama.com/install.sh | sh
+          service ollama start
+          while [ "$(ollama list | grep 'NAME')" == "" ]; do
+            sleep 1
+          done
+          ollama pull tinydolphin
+          nohup ollama run tinydolphin &
 
 Outputs:
   URL:
