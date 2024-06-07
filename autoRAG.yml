@@ -9,6 +9,10 @@ Parameters:
   KeyPair:
     Description: Name of the keypair to use for SSH access
     Type: String
+  ChromaVersion:
+    Description: Chroma version to install
+    Type: String
+    Default: 0.5.0
   InstanceType:
     Description: EC2 instance type
     Type: String
@@ -100,10 +104,12 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
+          # webserver
           sudo apt update -y
           sudo apt install apache2 -y
           sudo systemctl start apache2
           echo "<html><body><h1>Awesome !!!</h1></body></html>" > /var/www/html/index.html
+          # ollama
           sudo apt install curl
           curl -fsSL https://ollama.com/install.sh | sh
           service ollama start
@@ -112,6 +118,16 @@ Resources:
           done
           ollama pull tinydolphin
           nohup ollama run tinydolphin &
+          # docker
+          sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt update
+          apt-cache policy docker-ce
+          sudo apt install docker-ce -y
+          # chroma
+          sudo docker pull chromadb/chroma
+          sudo docker run -d -p 8000:8000 chromadb/chroma
 
 Outputs:
   URL:
