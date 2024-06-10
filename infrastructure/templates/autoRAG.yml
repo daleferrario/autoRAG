@@ -16,7 +16,11 @@ Parameters:
   InstanceType:
     Description: EC2 instance type
     Type: String
-    Default: t3.small
+    Default: m7g.large
+  ModelName:
+    Description: LLM model name to deploy
+    Type: String
+    Default: tinydolphin
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -123,7 +127,7 @@ Resources:
             echo "Waiting for container to be up..."
             sleep 1
           done
-          docker exec ollama ollama run tinydolphin
+          docker exec ollama ollama run ${ModelName}
           # chroma
           docker pull chromadb/chroma
           docker run -d -p 8000:8000 --name chromadb chromadb/chroma
@@ -134,11 +138,8 @@ Resources:
 
 Outputs:
   URL:
-    Description: URL of the sample website
+    Description: URL of the RAG server
     Value:
-      Fn::Join:
-        - ""
-        - - http://
-          - Fn::GetAtt:
-              - WebServerInstance
-              - PublicDnsName
+      Fn::GetAtt:
+        - WebServerInstance
+        - PublicDnsName

@@ -47,7 +47,7 @@ chroma_collection = None
 try:
     # Attempt to get the existing collection
     chroma_collection = chroma_client.get_collection(collection_name_used)
-except chromadb.exceptions.CollectionNotFound:
+except:
     # If the collection doesn't exist, create it
     chroma_collection = chroma_client.create_collection(collection_name_used)
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
