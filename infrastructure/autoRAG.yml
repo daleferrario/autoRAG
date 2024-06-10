@@ -4,7 +4,7 @@ Description: "AWS CloudFormation Template for AutoRAG. Deploys VPC and networkin
 Parameters:
   LatestAmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+    Default: "/aws/service/canonical/ubuntu/server/22.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
     Description: "The Ubuntu 22.04 LTS Stable AMI ID from SSM Parameter Store"
   KeyPair:
     Description: Name of the keypair to use for SSH access
@@ -101,33 +101,36 @@ Resources:
             Ref: PublicSubnet
       KeyName:
         Ref: KeyPair
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 32 # Size in GiB
+            VolumeType: gp2 # General Purpose SSD
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          # webserver
-          sudo apt update -y
-          sudo apt install apache2 -y
-          sudo systemctl start apache2
-          echo "<html><body><h1>Awesome !!!</h1></body></html>" > /var/www/html/index.html
-          # ollama
-          sudo apt install curl
-          curl -fsSL https://ollama.com/install.sh | sh
-          service ollama start
-          while [ "$(ollama list | grep 'NAME')" == "" ]; do
-            sleep 1
-          done
-          ollama pull tinydolphin
-          nohup ollama run tinydolphin &
           # docker
-          sudo apt-get install apt-transport-https ca-certificates curl software-properties-common -y
+          apt-get install apt-transport-https ca-certificates curl software-properties-common -y
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt update
+          apt update
           apt-cache policy docker-ce
-          sudo apt install docker-ce -y
+          apt install docker-ce -y
+          usermod -aG docker ubuntu
+          # ollama
+          docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+          while [ $(docker inspect -f {{.State.Running}} ollama) != "true" ]; do
+            echo "Waiting for container to be up..."
+            sleep 1
+          done
+          docker exec ollama ollama run tinydolphin
           # chroma
-          sudo docker pull chromadb/chroma
-          sudo docker run -d -p 8000:8000 chromadb/chroma
+          docker pull chromadb/chroma
+          docker run -d -p 8000:8000 --name chromadb chromadb/chroma
+          # app
+          docker pull ajferrario/autorag:latest
+          mkdir /home/ubuntu/data
+          chown ubuntu /home/ubuntu/data
 
 Outputs:
   URL:

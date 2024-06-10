@@ -3,13 +3,12 @@ from pathlib import Path
 from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader, StorageContext, Settings
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import sys, datetime, logging, chromadb
+import sys, datetime, logging, chromadb, os
 
 print("STARTING")
 
-logging_info=False
-
-if ((len(sys.argv) == 2) and (sys.argv[1] == "-v")):
+logging_info = False
+if "-v" in sys.argv:
     logging_info=True
     logging.basicConfig(
         level=logging.INFO,
@@ -17,11 +16,14 @@ if ((len(sys.argv) == 2) and (sys.argv[1] == "-v")):
         datefmt="%Y-%m-%d %H:%M:%S",
         filename="dgm.log",
     )
+server = True
+if "--local" in sys.argv:
+    server = False
 
 logging.info("STARTING")
 
 llm_model_used = "tinydolphin"
-document_directory_used = "data/dgm_data"
+document_directory_used = "/data"
 embedding_model_used = "BAAI/bge-base-en-v1.5"
 collection_name_used = "dgm_data"
 chunk_size_used = 512
@@ -37,8 +39,17 @@ documents_loaded=len(documents)
 logging.info("DOCUMENTS LOADED: %d", documents_loaded)
 
 # Create ChromaDB
-chroma_client = chromadb.EphemeralClient()
-chroma_collection = chroma_client.create_collection(collection_name_used)
+if not server:
+  chroma_client = chromadb.EphemeralClient()
+else:
+  chroma_client = chromadb.HttpClient(host=os.getenv('HOST', 'localhost'), port=8000)
+chroma_collection = None
+try:
+    # Attempt to get the existing collection
+    chroma_collection = chroma_client.get_collection(collection_name_used)
+except chromadb.exceptions.CollectionNotFound:
+    # If the collection doesn't exist, create it
+    chroma_collection = chroma_client.create_collection(collection_name_used)
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
 
