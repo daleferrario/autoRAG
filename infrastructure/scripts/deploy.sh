@@ -88,7 +88,7 @@ fi
 # Create CloudFormation stack
 aws cloudformation create-stack \
   --stack-name "$STACK_NAME" \
-  --template-body "file://../templates/autoRAG.yml" \
+  --template-body "file://$(dirname "$SCRIPT_DIR")/templates/autoRAG.yml" \
   --parameters "$PARAMETERS" \
   --region "$REGION"
 
