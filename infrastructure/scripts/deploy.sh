@@ -61,9 +61,9 @@ if [ -n "$LOCAL" ]; then
   docker pull chromadb/chroma
   docker run -d -p 8000:8000 --name chromadb chromadb/chroma
   # app
-  docker pull ajferrario/autorag:latest
-  DATA_PATH=$(dirname "$(dirname "$SCRIPT_DIR")")
-  docker run -it -v $DATA_PATH/data:/data --network host --name autorag ajferrario/autorag:latest
+  # docker pull ajferrario/autorag:latest
+  # DATA_PATH=$(dirname "$(dirname "$SCRIPT_DIR")")
+  # docker run -it -v $DATA_PATH/data:/data --network host --name autorag ajferrario/autorag:latest
   echo "LOCAL=true" >> .status
   echo "Stack information written to .status file"
   exit 1
