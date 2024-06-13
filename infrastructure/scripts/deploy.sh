@@ -48,7 +48,7 @@ done
 if [ -n "$LOCAL" ]; then
   echo "local deployment"
   docker pull ollama/ollama:latest
-  docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+  docker run --rm -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
   while [ $(docker inspect -f {{.State.Running}} ollama) != "true" ]; do
     echo "Waiting for container to be up..."
     sleep 1
@@ -59,11 +59,11 @@ if [ -n "$LOCAL" ]; then
   docker exec ollama ollama run ${LLM_MODEL_NAME}
   # chroma
   docker pull chromadb/chroma
-  docker run -d -p 8000:8000 --name chromadb chromadb/chroma
+  docker run --rm -d -p 8000:8000 --name chromadb chromadb/chroma
   # app
   # docker pull ajferrario/autorag:latest
   # DATA_PATH=$(dirname "$(dirname "$SCRIPT_DIR")")
-  # docker run -it -v $DATA_PATH/data:/data --network host --name autorag ajferrario/autorag:latest
+  # docker run --rm -it -v $DATA_PATH/data:/data --network host --name autorag ajferrario/autorag:latest
   echo "LOCAL=true" >> $SCRIPT_DIR/.status
   echo "Stack information written to .status file"
   exit 1

@@ -3,14 +3,11 @@ from pathlib import Path
 from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader, StorageContext, Settings, PromptTemplate
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess
+import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess, ollama
 
-# Usage: PROGRAM [-v --local -d <data_directory> -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
-# Usage: PROGRAM [-v --local -d <data_directory> -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <tinydolphin | llama3 | tinyllama>]
+# Usage: PROGRAM [-v --local -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
 # All arguments are optional
 # -v is included to turn on logging at the INFO level, saving to a log file
-# --local is included if running locally
-# -d <data_directory> is a directory, default is "/data"
 # -e <embedding_model> is a model from HuggingFace, default is "BAAI/bge-base-en-v1.5"
 # -c <chunk_size> is a number, default is 1024 (tokens)
 # -o <chunk_overlap> is a number, default is 20 (tokens)
@@ -22,8 +19,6 @@ def parse_args():
   """Parses arguments from the command line."""
   parser = argparse.ArgumentParser(description="Program description")
   parser.add_argument("-v", "--verbose", action="store_true", help="Turn on INFO level logging")
-  parser.add_argument("--local", action="store_true", help="Indicate program is running locally")
-  parser.add_argument("-d", "--data_directory", type=str, default="/data", help="Data directory path")
   parser.add_argument("-e", "--embedding_model", type=str, default="BAAI/bge-base-en-v1.5", help="Embedding model from HuggingFace")
   parser.add_argument("-c", "--chunk_size", type=int, default=1024, help="Chunk size in tokens")
   parser.add_argument("-o", "--chunk_overlap", type=int, default=20, help="Chunk overlap in tokens")
@@ -55,8 +50,6 @@ warnings.showwarning = warning_to_log
 # Print or use the parsed arguments here
 logging.info("ARGUMENTS")
 logging.info(f"verbose: {args.verbose}")
-logging.info(f"local: {args.local}")
-logging.info(f"data_directory: {args.data_directory}")
 logging.info(f"embedding_model: {args.embedding_model}")
 logging.info(f"chunk_size: {args.chunk_size}")
 logging.info(f"chunk_overlap: {args.chunk_overlap}")
@@ -68,9 +61,9 @@ logging.info("STARTING")
 
 # Set up
 llm_model_used = args.llm
-document_directory_used = args.data_directory
 embedding_model_used = args.embedding_model
-collection_name_used = "dgm_data"
+document_directory_used = "/data"
+collection_name_used = "data"
 chunk_size_used = args.chunk_size
 chunk_overlap_used = args.chunk_overlap
 personality_used = args.personality_used
@@ -85,11 +78,7 @@ documents_loaded=len(documents)
 logging.info("DOCUMENTS LOADED: %d", documents_loaded)
 
 # Create ChromaDB
-chroma_client = None
-if not args.local:
-    chroma_client = chromadb.EphemeralClient()
-else:
-    chroma_client = chromadb.HttpClient(host=os.getenv('HOST', 'localhost'), port=8000)
+chroma_client = chromadb.HttpClient(host=os.getenv('HOST', 'localhost'), port=8000)
 chroma_collection = None
 try:
     # Attempt to get the existing collection
@@ -103,12 +92,7 @@ storage_context = StorageContext.from_defaults(vector_store=vector_store)
 logging.info("CHROMADB CREATED")
 
 # Load the LLM model that will be used
-result = subprocess.run(f"ollama pull {llm_model_used}", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-if result.returncode == 0:
-    output = result.stdout.decode("utf-8")
-    logging.info(f"COMMAND SUCCEEDED: ollama pull {llm_model_used}")
-else:
-    logging.info(f"COMMAND FAILED: ollama pull {llm_model_used}")
+ollama.pull(llm_model_used)
  
 ## Initialize Ollama and ServiceContext, using the requested LLM model
 Settings.llm = Ollama(model=llm_model_used, request_timeout=600.0)

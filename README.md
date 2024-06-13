@@ -14,4 +14,4 @@ aws cloudformation create-stack --template-body file://infrastructure/autoRAG.ym
 ollama ps
 sudo docker ps
 scp -i ~/.ssh/autoRAG.pem -r data ubuntu@ec2-35-94-102-162.us-west-2.compute.amazonaws.com:/home/ubuntu/ 
-sudo docker run -it -v /home/ubuntu/data:/data --network host ajferrario/autorag:latest
+sudo docker run --rm -it -v /home/ubuntu/data:/data --network host ajferrario/autorag:latest

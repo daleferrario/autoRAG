@@ -122,7 +122,7 @@ Resources:
           apt install docker-ce -y
           usermod -aG docker ubuntu
           # ollama
-          docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+          docker run --rm --restart=on-failure -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
           while [ $(docker inspect -f {{.State.Running}} ollama) != "true" ]; do
             echo "Waiting for container to be up..."
             sleep 1
@@ -130,7 +130,7 @@ Resources:
           docker exec ollama ollama run ${ModelName}
           # chroma
           docker pull chromadb/chroma
-          docker run -d -p 8000:8000 --name chromadb chromadb/chroma
+          docker run --rm --restart=on-failure -d -p 8000:8000 --name chromadb chromadb/chroma
           # app
           docker pull ajferrario/autorag:latest
           mkdir /home/ubuntu/data
