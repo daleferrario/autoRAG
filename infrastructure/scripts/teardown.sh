@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Get the absolute path of the script
+SCRIPT_PATH=$(realpath "$0")
+
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
 # Function to display usage
 usage() {
   echo "Usage: $0 requires a deployed stack."
@@ -7,18 +13,18 @@ usage() {
 }
 
 # Check if .status file exists
-if [ ! -f .status ]; then
+if [ ! -f $SCRIPT_DIR/.status ]; then
   echo ".status file not found!"
   exit 1
 fi
 
-source .status
+source $SCRIPT_DIR/.status
 
 if [ -n "$LOCAL" ]; then
   echo local deployment found
   docker stop ollama chromadb autorag
   docker rm ollama chromadb autorag
-  rm .status
+  rm $SCRIPT_DIR/.status
   exit 1
 fi
 # Check if mandatory arguments are provided
@@ -44,4 +50,4 @@ else
 fi
 
 # Delete .status file
-rm .status
+rm $SCRIPT_DIR/.status

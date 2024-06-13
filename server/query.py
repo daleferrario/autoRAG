@@ -108,7 +108,7 @@ if result.returncode == 0:
     output = result.stdout.decode("utf-8")
     logging.info(f"COMMAND SUCCEEDED: ollama pull {llm_model_used}")
 else:
-    logging.info(f"COMMAND FAILED: ollama pull {llm_model_used}"))
+    logging.info(f"COMMAND FAILED: ollama pull {llm_model_used}")
  
 ## Initialize Ollama and ServiceContext, using the requested LLM model
 Settings.llm = Ollama(model=llm_model_used, request_timeout=600.0)

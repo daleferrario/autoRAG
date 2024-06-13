@@ -64,7 +64,7 @@ if [ -n "$LOCAL" ]; then
   # docker pull ajferrario/autorag:latest
   # DATA_PATH=$(dirname "$(dirname "$SCRIPT_DIR")")
   # docker run -it -v $DATA_PATH/data:/data --network host --name autorag ajferrario/autorag:latest
-  echo "LOCAL=true" >> .status
+  echo "LOCAL=true" >> $SCRIPT_DIR/.status
   echo "Stack information written to .status file"
   exit 1
 fi
@@ -99,6 +99,6 @@ aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME"
 aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text
 
 # Write status file
-echo "STACK_NAME=\"$STACK_NAME\"" > .status
-echo "REGION=\"$REGION\"" >> .status
+echo "STACK_NAME=\"$STACK_NAME\"" > $SCRIPT_DIR/.status
+echo "REGION=\"$REGION\"" >> $SCRIPT_DIR.status
 echo "Stack information written to .status file"

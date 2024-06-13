@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Get the absolute path of the script
+SCRIPT_PATH=$(realpath "$0")
+
+# Get the directory of the script
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
 # Function to display usage
 usage() {
   echo "Usage: $0 requires a deployed stack."
@@ -7,12 +13,12 @@ usage() {
 }
 
 # Check if .status file exists
-if [ ! -f .status ]; then
+if [ ! -f $SCRIPT_DIR/.status ]; then
   echo ".status file not found!"
   exit 1
 fi
 
-source .status
+source $SCRIPT_DIR/.status
 
 # Check if mandatory arguments are provided
 if [ -z "$STACK_NAME" ] || [ -z "$REGION" ]; then
