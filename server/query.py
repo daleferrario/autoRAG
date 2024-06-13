@@ -3,7 +3,7 @@ from pathlib import Path
 from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader, StorageContext, Settings, PromptTemplate
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import sys, datetime, logging, chromadb, os, argparse, subprocess
+import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess
 
 # Usage: PROGRAM [-v --local -d <data_directory> -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
 # Usage: PROGRAM [-v --local -d <data_directory> -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <tinydolphin | llama3 | tinyllama>]
@@ -33,16 +33,6 @@ def parse_args():
   return parser.parse_args()
 
 args = parse_args()
-# Print or use the parsed arguments here
-logging.info(f"verbose: {args.verbose}")
-logging.info(f"local: {args.local}")
-logging.info(f"data_directory: {args.data_directory}")
-logging.info(f"embedding_model: {args.embedding_model}")
-logging.info(f"chunk_size: {args.chunk_size}")
-logging.info(f"chunk_overlap: {args.chunk_overlap}")
-logging.info(f"personality_used: {args.personality_used}")
-logging.info(f"query_type: {args.query_type}")
-logging.info(f"llm: {args.llm}")
 
 print("STARTING")
 
@@ -54,6 +44,25 @@ if args.verbose:
         datefmt="%Y-%m-%d %H:%M:%S",
         filename="dgm.log",
     )
+
+def warning_to_log(message, category, filename, lineno, file=None, line=None):
+    log = logging.getLogger('py.warnings')
+    log.warning('%s:%s: %s:%s', filename, lineno, category.__name__, message)
+
+# Redirect warnings to the logging module
+warnings.showwarning = warning_to_log
+
+# Print or use the parsed arguments here
+logging.info("ARGUMENTS")
+logging.info(f"verbose: {args.verbose}")
+logging.info(f"local: {args.local}")
+logging.info(f"data_directory: {args.data_directory}")
+logging.info(f"embedding_model: {args.embedding_model}")
+logging.info(f"chunk_size: {args.chunk_size}")
+logging.info(f"chunk_overlap: {args.chunk_overlap}")
+logging.info(f"personality_used: {args.personality_used}")
+logging.info(f"query_type: {args.query_type}")
+logging.info(f"llm: {args.llm}")
 
 logging.info("STARTING")
 
@@ -97,10 +106,9 @@ logging.info("CHROMADB CREATED")
 result = subprocess.run(f"ollama pull {llm_model_used}", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 if result.returncode == 0:
     output = result.stdout.decode("utf-8")
-    logging.info("COMMAND OUTPUT: %s",output)
+    logging.info(f"COMMAND SUCCEEDED: ollama pull {llm_model_used}")
 else:
-    print(f"Error running command: {result.stderr.decode('utf-8')}")
-    logging.info("COMMAND FAILED: %s",result.stderr.decode('utf-8'))
+    logging.info(f"COMMAND FAILED: ollama pull {llm_model_used}"))
  
 ## Initialize Ollama and ServiceContext, using the requested LLM model
 Settings.llm = Ollama(model=llm_model_used, request_timeout=600.0)
