@@ -7,6 +7,7 @@ SCRIPT_PATH=$(realpath "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
 # server code
+docker pull ajferrario/autorag:latest
 docker build -t ajferrario/autorag:latest $SCRIPT_DIR/server/ 
 
 if [ $? -ne 0 ]; then
