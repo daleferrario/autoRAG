@@ -16,22 +16,22 @@ DATA_PATH="$(dirname $(dirname $SCRIPT_DIR))/data"
 MAKE_PATH="$(dirname $(dirname $SCRIPT_DIR))/make.sh"
 
 # Parse command-line arguments
-while getopts ":d:" opt; do
-  case $opt in
-    d)
-      DATA_PATH=$OPTARG
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
+  case $1 in
+    -d)
+      shift
+      DATA_PATH=$1
       ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      usage
+    *)
+      break
       ;;
   esac
+  shift
 done
 
 # Run make first in case there's un-compiled changes
 $MAKE_PATH
 
-shift $((OPTIND -1))
-
+echo Passing through arguments "$@"
 docker pull ajferrario/autorag:latest
 docker run --rm -it -v $DATA_PATH:/data --network host --name autorag ajferrario/autorag:latest "$@"
