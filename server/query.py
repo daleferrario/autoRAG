@@ -22,7 +22,7 @@ def parse_args():
   parser.add_argument("-e", "--embedding_model", type=str, default="BAAI/bge-base-en-v1.5", help="Embedding model from HuggingFace")
   parser.add_argument("-c", "--chunk_size", type=int, default=1024, help="Chunk size in tokens")
   parser.add_argument("-o", "--chunk_overlap", type=int, default=20, help="Chunk overlap in tokens")
-  parser.add_argument("-p", "--personality_used", type=str, default="Respond as an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines", help="Personality used")
+  parser.add_argument("-p", "--personality_used", type=str, default="an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines", help="Personality used")
   parser.add_argument("-t", "--query_type", type=str, default="answer the query", help="Query type")
   parser.add_argument("-l", "--llm", type=str, default="tinydolphin", help="Large language model")
   return parser.parse_args()
