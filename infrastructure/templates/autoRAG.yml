@@ -132,9 +132,10 @@ Resources:
           docker pull chromadb/chroma
           docker run --restart=on-failure -d -p 8000:8000 --name chromadb chromadb/chroma
           # app
-          docker pull ajferrario/autorag:latest
-          mkdir /home/ubuntu/data
+          mkdir -p /home/ubuntu/data
+          mkdir -p /home/ubuntu/log
           chown ubuntu /home/ubuntu/data
+          chown ubuntu /home/ubuntu/log
 
 Outputs:
   URL:

@@ -28,8 +28,8 @@ WORKDIR /home/appuser
 USER appuser
 
 # Install application into container
-COPY . .
-RUN mkdir log
+COPY --chown=appuser:appuser . .
+RUN mkdir -p /home/appuser/log && chown appuser:appuser /home/appuser/log
 
 # Run the application
 ENTRYPOINT ["python", "query.py"]
