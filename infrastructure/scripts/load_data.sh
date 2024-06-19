@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
 # Function to display usage
 usage() {
-  echo "Usage: $0 -d <path-to-data> -k <path-to-key>"
+  echo "Usage: $0 -d <path-to-data> -k <path-to-key_file>"
   exit 1
 }
 
@@ -49,6 +49,11 @@ if [ -z "$DATA_PATH" ] || [ -z "$KEY_PATH" ] || [ -z "$STACK_NAME" ] || [ -z "$R
   usage
 fi
 
+echo $DATA_PATH
+echo $KEY_PATH
+echo $STACK_NAME
+echo $REGION  
+
 # Get URL from our deployed stack
 URL=$(aws cloudformation describe-stacks \
   --stack-name "$STACK_NAME" \
@@ -56,4 +61,4 @@ URL=$(aws cloudformation describe-stacks \
   --query "Stacks[0].Outputs[?OutputKey=='URL'].OutputValue" \
   --output text)
 
-scp -o -i "$KEY_PATH" -r "$DATA_PATH" "ubuntu@$URL:/home/ubuntu/"
+scp -o "StrictHostKeyChecking=no" -i "$KEY_PATH" -r "$DATA_PATH" "ubuntu@$URL:/home/ubuntu/"

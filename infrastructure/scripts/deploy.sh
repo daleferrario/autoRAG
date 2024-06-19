@@ -100,5 +100,5 @@ aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0]
 
 # Write status file
 echo "STACK_NAME=\"$STACK_NAME\"" > $SCRIPT_DIR/.status
-echo "REGION=\"$REGION\"" >> $SCRIPT_DIR.status
+echo "REGION=\"$REGION\"" >> $SCRIPT_DIR/.status
 echo "Stack information written to .status file"
