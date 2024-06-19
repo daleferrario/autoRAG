@@ -8,7 +8,7 @@ SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
 
 # Function to display usage
 usage() {
-  echo "Usage: $0 -d <path-to-data> -k <path-to-key_file>"
+  echo "Usage: $0 -d <path-to-data>"
   exit 1
 }
 
@@ -19,7 +19,7 @@ while getopts ":d:k:" opt; do
       DATA_PATH=$OPTARG
       ;;
     k)
-      KEY_PATH=$OPTARG
+      KEY_FILE_PATH=$OPTARG
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -41,16 +41,16 @@ fi
 source $SCRIPT_DIR/.status
 
 # Check if mandatory arguments are provided
-if [ -z "$DATA_PATH" ] || [ -z "$KEY_PATH" ] || [ -z "$STACK_NAME" ] || [ -z "$REGION" ]; then
+if [ -z "$DATA_PATH" ] || [ -z "$KEY_FILE_PATH" ] || [ -z "$STACK_NAME" ] || [ -z "$REGION" ]; then
   echo $DATA_PATH
-  echo $KEY_PATH
+  echo $KEY_FILE_PATH
   echo $STACK_NAME
   echo $REGION  
   usage
 fi
 
 echo $DATA_PATH
-echo $KEY_PATH
+echo $KEY_FILE_PATH
 echo $STACK_NAME
 echo $REGION  
 
@@ -61,4 +61,4 @@ URL=$(aws cloudformation describe-stacks \
   --query "Stacks[0].Outputs[?OutputKey=='URL'].OutputValue" \
   --output text)
 
-scp -o "StrictHostKeyChecking=no" -i "$KEY_PATH" -r "$DATA_PATH" "ubuntu@$URL:/home/ubuntu/"
+scp -o "StrictHostKeyChecking=no" -i "$KEY_FILE_PATH" -r "$DATA_PATH" "ubuntu@$URL:/home/ubuntu/"
