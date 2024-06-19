@@ -35,9 +35,6 @@ while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
   shift
 done
 
-# Run make first in case there's un-compiled changes
-$MAKE_PATH
-
 source $SCRIPT_DIR/.status
 
 URL=$(aws cloudformation describe-stacks \
@@ -46,9 +43,11 @@ URL=$(aws cloudformation describe-stacks \
   --query "Stacks[0].Outputs[?OutputKey=='URL'].OutputValue" \
   --output text)
 
-if [ -z "$LOCAL" ]; then
-  ssh -o "StrictHostKeyChecking=no" -i $KEY_FILE_PATH "ubuntu@$URL"
-fi
 echo Passing through arguments "$@"
-docker pull ajferrario/autorag:latest
-docker run --rm -it -v $DATA_PATH:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@"
+INITIAL_COMMANDS="docker pull ajferrario/autorag:latest; docker run --rm -it -v $DATA_PATH:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@""
+if [ -z "$LOCAL" ]; then
+  ssh -t -o "StrictHostKeyChecking=no" -i $KEY_FILE_PATH "ubuntu@$URL" "${INITIAL_COMMANDS}; bash"
+else
+  docker pull ajferrario/autorag:latest
+  docker run --rm -it -v $DATA_PATH:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@"
+fi
