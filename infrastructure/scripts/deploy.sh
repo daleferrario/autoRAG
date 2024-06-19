@@ -19,7 +19,7 @@ while getopts ":n:k:i:m:r:l" opt; do
       STACK_NAME=$OPTARG
       ;;
     k)
-      KEYPAIR=$OPTARG
+      KEY_PAIR=$OPTARG
       ;;
     i)
       INSTANCE_TYPE=$OPTARG
@@ -69,11 +69,11 @@ if [ -n "$LOCAL" ]; then
   exit 1
 fi
 # Check if mandatory arguments are provided
-if [ -z "$STACK_NAME" ] || [ -z "$KEYPAIR" ]; then
+if [ -z "$STACK_NAME" ] || [ -z "$KEY_PAIR" ]; then
   usage
 fi
 if [ -z "$LLM_MODEL_NAME" ]; then
-  $LLM_MODEL_NAME = "tinydolphin"
+  LLM_MODEL_NAME="tinydolphin"
 fi
 if [ -n "$AWS_REGION_NAME" ]; then
   REGION=$AWS_REGION_NAME
@@ -91,10 +91,10 @@ aws cloudformation create-stack \
   --region "$REGION"
 
 # Wait for the stack to be created
-aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME"
+aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME" --region "$REGION"
 
 # Output the stack status
-aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text
+aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].StackStatus" --output text --region "$REGION"
 
 # Write status file
 echo "STACK_NAME=\"$STACK_NAME\"" > $SCRIPT_DIR/.status
