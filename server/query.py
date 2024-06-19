@@ -37,7 +37,7 @@ if args.verbose:
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
-        filename="dgm.log",
+        filename="log/dgm.log",
     )
 
 def warning_to_log(message, category, filename, lineno, file=None, line=None):

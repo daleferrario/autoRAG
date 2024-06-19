@@ -29,6 +29,7 @@ USER appuser
 
 # Install application into container
 COPY . .
+RUN mkdir log
 
 # Run the application
 ENTRYPOINT ["python", "query.py"]

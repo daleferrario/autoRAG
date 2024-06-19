@@ -34,4 +34,4 @@ $MAKE_PATH
 
 echo Passing through arguments "$@"
 docker pull ajferrario/autorag:latest
-docker run --rm -it -v $DATA_PATH:/data --network host --name autorag ajferrario/autorag:latest "$@"
+docker run --rm -it -v $DATA_PATH:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@"
