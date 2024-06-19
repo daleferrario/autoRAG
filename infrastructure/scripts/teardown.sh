@@ -38,7 +38,7 @@ aws cloudformation delete-stack \
   --region "$REGION"
 
 # Wait for the stack to be deleted
-aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
+aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
 
 # Check if stack still exists
 STACK_STATUS=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --query "Stacks[0].StackStatus" --output text 2>/dev/null)
