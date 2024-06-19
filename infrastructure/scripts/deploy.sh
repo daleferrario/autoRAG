@@ -72,6 +72,9 @@ fi
 if [ -z "$STACK_NAME" ] || [ -z "$KEYPAIR" ]; then
   usage
 fi
+if [ -z "$LLM_MODEL_NAME" ]; then
+  $LLM_MODEL_NAME = "tinydolphin"
+fi
 if [ -n "$AWS_REGION_NAME" ]; then
   REGION=$AWS_REGION_NAME
 else
