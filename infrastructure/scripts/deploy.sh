@@ -72,14 +72,6 @@ fi
 if [ -z "$STACK_NAME" ] || [ -z "$KEYPAIR" ]; then
   usage
 fi
-
-PARAMETERS="ParameterKey=KeyPair,ParameterValue=$KEYPAIR "
-if [ -n "$INSTANCE_TYPE" ]; then
-  PARAMETERS+="ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE "
-fi
-if [ -n "$LLM_MODEL_NAME" ]; then
-  PARAMETERS+="ParameterKey=ModelName,ParameterValue=$LLM_MODEL_NAME "
-fi
 if [ -n "$AWS_REGION_NAME" ]; then
   REGION=$AWS_REGION_NAME
 else
@@ -88,8 +80,11 @@ fi
 # Create CloudFormation stack
 aws cloudformation create-stack \
   --stack-name "$STACK_NAME" \
-  --template-body "file://$(dirname "$SCRIPT_DIR")/templates/autoRAG.yml" \
-  --parameters "$PARAMETERS" \
+  --template-body "file://$(dirname $SCRIPT_DIR)/templates/autoRAG.yml" \
+  --parameters \
+  ParameterKey=KeyPair,ParameterValue=$KEY_PAIR \
+  ParameterKey=InstanceType,ParameterValue=$INSTANCE_TYPE \
+  ParameterKey=ModelName,ParameterValue=$LLM_MODEL_NAME \
   --region "$REGION"
 
 # Wait for the stack to be created
