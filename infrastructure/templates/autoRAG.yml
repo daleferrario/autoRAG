@@ -93,8 +93,8 @@ Resources:
     Properties:
       InstanceType:
         Ref: InstanceType
-      ImageId:
-        Ref: LatestAmiId
+      ImageId: ami-0aae8920875bc744a
+      #  Ref: LatestAmiId
       NetworkInterfaces:
         - GroupSet:
             - Ref: WebServerSecurityGroup
@@ -108,14 +108,14 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-            VolumeSize: 32 # Size in GiB
+            VolumeSize: 96 # Size in GiB
             VolumeType: gp2 # General Purpose SSD
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
           # Nvidia drivers
-          sudo apt install ubuntu-drivers-common alsa-utils -y
-          sudo ubuntu-drivers install --gpgpu
+          # sudo apt install ubuntu-drivers-common alsa-utils -y
+          # sudo ubuntu-drivers install --gpgpu
           # docker
           apt-get install apt-transport-https ca-certificates curl software-properties-common -y
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -125,7 +125,7 @@ Resources:
           apt install docker-ce -y
           usermod -aG docker ubuntu
           # ollama
-          docker run --restart=on-failure -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+          docker run --gpus all --restart=on-failure -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
           while [ $(docker inspect -f {{.State.Running}} ollama) != "true" ]; do
             echo "Waiting for container to be up..."
             sleep 1

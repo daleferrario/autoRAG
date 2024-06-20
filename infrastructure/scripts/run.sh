@@ -22,12 +22,12 @@ while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
       shift
       DATA_PATH=$1
       ;;
-    -l)
-      echo "local"
-      echo "$1"
-      shift
-      LOCAL=$1
-      ;;
+    # -l)
+    #   echo "local"
+    #   echo "$1"
+    #   shift
+    #   LOCAL=$1
+    #   ;;
     *)
       break
       ;;
@@ -44,7 +44,7 @@ URL=$(aws cloudformation describe-stacks \
   --output text)
 
 echo Passing through arguments "$@"
-INITIAL_COMMANDS="docker pull ajferrario/autorag:latest; docker run --rm -it -v $DATA_PATH:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@""
+INITIAL_COMMANDS="docker pull ajferrario/autorag:latest; docker run --gpus all --rm -it -v /home/ubuntu/data:/data -v /home/ubuntu/log:/home/appuser/log --network host --name autorag ajferrario/autorag:latest "$@""
 if [ -z "$LOCAL" ]; then
   ssh -t -o "StrictHostKeyChecking=no" -i $KEY_FILE_PATH "ubuntu@$URL" "${INITIAL_COMMANDS}; bash"
 else
