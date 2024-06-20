@@ -1,6 +1,8 @@
 ---
 AWSTemplateFormatVersion: "2010-09-09"
+
 Description: "AWS CloudFormation Template for AutoRAG. Deploys VPC and networking resources and an EC2 webserver."
+
 Parameters:
   LatestAmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
@@ -21,7 +23,44 @@ Parameters:
     Description: LLM model name to deploy
     Type: String
     Default: tinydolphin
-Resources:
+
+Mappings:
+  RegionMap:
+    ap-south-1:
+      AMIID: ami-09a8acc2f5e8e57fc
+    eu-north-1:
+      AMIID: ami-0d47c2063be189fce
+    eu-west-3:
+      AMIID: ami-087105eddcce56a62
+    eu-west-2:
+      AMIID: ami-0b5f907d2c783b251
+    eu-west-1:
+      AMIID: ami-0e1fae342f89b4159
+    ap-northeast-3:
+      AMIID: ami-0ba99e31f74da9be3
+    ap-northeast-2:
+      AMIID: ami-0fa30a83d31fe23b7
+    ap-northeast-1:
+      AMIID: ami-09b74ffed30c40197
+    ca-central-1:
+      AMIID: ami-0ab8e7f01912d7c19
+    sa-east-1:
+      AMIID: ami-0e3e137cb772e797b
+    ap-southeast-1:
+      AMIID: ami-0ef3c6e4897db11e2
+    ap-southeast-2:
+      AMIID: ami-0959229bf16364532
+    eu-central-1:
+      AMIID: ami-045ce093c1b9bab97
+    us-east-1:
+      AMIID: ami-08f2838a07f464634
+    us-east-2:
+      AMIID: ami-02d7f904d20fb845c
+    us-west-1:
+      AMIID: ami-0aae8920875bc744a
+    us-west-2:
+      AMIID: ami-077157cfd5b5214eb
+
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -93,7 +132,10 @@ Resources:
     Properties:
       InstanceType:
         Ref: InstanceType
-      ImageId: ami-0aae8920875bc744a
+       ImageId: !FindInMap
+        - RegionMap
+        - !Ref "AWS::Region"
+        - AMIID
       #  Ref: LatestAmiId
       NetworkInterfaces:
         - GroupSet:
