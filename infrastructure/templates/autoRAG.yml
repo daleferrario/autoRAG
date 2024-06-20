@@ -113,6 +113,9 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
+          # Nvidia drivers
+          sudo apt install ubuntu-drivers-common alsa-utils -y
+          sudo ubuntu-drivers install --gpgpu
           # docker
           apt-get install apt-transport-https ca-certificates curl software-properties-common -y
           curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
