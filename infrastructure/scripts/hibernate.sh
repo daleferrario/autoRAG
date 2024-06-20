@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get the absolute path of the script
 SCRIPT_PATH=$(realpath "$0")
 
@@ -32,7 +34,8 @@ INSTANCE_ID=$(aws cloudformation describe-stack-resources \
   --stack-name "$STACK_NAME" \
   --logical-resource-id "WebServerInstance" \
   --query "StackResources[0].PhysicalResourceId" \
-  --output text)
+  --output text \
+  --region "$REGION")
 
 # Check if the instance ID was found
 if [ -z "$INSTANCE_ID" ]; then
@@ -43,9 +46,9 @@ fi
 echo "Instance ID: $INSTANCE_ID"
 
 # Stop the EC2 instance
-aws ec2 stop-instances --instance-ids "$INSTANCE_ID"
+aws ec2 stop-instances --instance-ids "$INSTANCE_ID" --region "$REGION"
 
 # Wait for the instance to stop
-aws ec2 wait instance-stopped --instance-ids "$INSTANCE_ID"
+aws ec2 wait instance-stopped --instance-ids "$INSTANCE_ID" --region "$REGION"
 
 echo "Instance $INSTANCE_ID has been stopped."

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get the absolute path of the script
 SCRIPT_PATH=$(realpath "$0")
 
@@ -42,10 +44,6 @@ source $SCRIPT_DIR/.status
 
 # Check if mandatory arguments are provided
 if [ -z "$DATA_PATH" ] || [ -z "$KEY_FILE_PATH" ] || [ -z "$STACK_NAME" ] || [ -z "$REGION" ]; then
-  echo $DATA_PATH
-  echo $KEY_FILE_PATH
-  echo $STACK_NAME
-  echo $REGION  
   usage
 fi
 

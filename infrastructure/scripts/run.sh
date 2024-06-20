@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get the absolute path of the script
 SCRIPT_PATH=$(realpath "$0")
 
@@ -22,12 +24,6 @@ while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do
       shift
       DATA_PATH=$1
       ;;
-    # -l)
-    #   echo "local"
-    #   echo "$1"
-    #   shift
-    #   LOCAL=$1
-    #   ;;
     *)
       break
       ;;

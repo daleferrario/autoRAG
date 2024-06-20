@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Get the absolute path of the script
 SCRIPT_PATH=$(realpath "$0")
 
