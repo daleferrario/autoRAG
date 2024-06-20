@@ -19,10 +19,11 @@ sudo docker run --rm -it -v /home/ubuntu/data:/data --network host ajferrario/au
 # Testing with different AWS instances
 # m5.large - 1 vCPU, 16 GiB memory, no GPU
 # t3.xlarge - 4 vCPU, 16 GiB memory, no GPU
-# g5.xlarge - 4 vCPU, 16 GiB memory, 1 GPU (NVIDIA Tesla P100)
+# g4dn.xlarge - 4 vCPU, 16 GiB memory, 1 GPU (NVIDIA Tesla P100)
 # c7.48xlarge - 192 vCPU, 384 GiB memory, no GPU
-# DaleConsoleKeyPair
-deploy.sh -n <stack-name> -k <keypair> -i <ec2-instanct-type>
+infrastructure/scripts/deploy.sh -n <stack-name> -k ~/.ssh/DaleConsoleKeyPairWest1.pem -i <ec2-instanct-type> -r us-west-1
+
+infrastructure/scripts/load_data.sh -d ~/autoRAG/data 
 
 # Testing with different LLM models
 # tinydolphin (default)
@@ -32,4 +33,4 @@ deploy.sh -n <stack-name> -k <keypair> -i <ec2-instanct-type>
 # WuDao 2.0 Base - medium
 # Llama2b - medium
 # GPT-2 - small
-docker run --rm -it -v ~/data:/data -v $(pwd):/home/appuser/log --network host --name autorag ajferrario/autorag:latest -l <llm> [-v -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -q <query_type>]
+infrastructure/scripts/run.sh -l <llm> [-v -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -q <query_type>]
