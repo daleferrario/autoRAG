@@ -21,10 +21,23 @@ MAKE_PATH="$(dirname "$(dirname "$SCRIPT_DIR")")/make.sh"
 source "$SCRIPT_DIR/.status"
 
 # Get the URL from the AWS CloudFormation stack outputs
-URL=$(aws cloudformation describe-stacks \
+INSTANCE_ID=$(aws cloudformation describe-stack-resource \
   --stack-name "$STACK_NAME" \
+  --logical-resource-id WebServerInstance \
   --region "$REGION" \
-  --query "Stacks[0].Outputs[?OutputKey=='URL'].OutputValue" \
+  --query "StackResourceDetail.PhysicalResourceId" \
+  --output text)
+  
+if [ -z "$INSTANCE_ID" ]; then
+  echo "Failed to get instance ID for WebServerInstance in stack $STACK_NAME."
+  exit 1
+fi
+
+# Get the public DNS of the instance
+URL=$(aws ec2 describe-instances \
+  --instance-ids "$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "Reservations[0].Instances[0].PublicDnsName" \
   --output text)
 
 echo "$URL"

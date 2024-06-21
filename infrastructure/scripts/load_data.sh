@@ -52,11 +52,25 @@ echo $KEY_FILE_PATH
 echo $STACK_NAME
 echo $REGION  
 
-# Get URL from our deployed stack
-URL=$(aws cloudformation describe-stacks \
+INSTANCE_ID=$(aws cloudformation describe-stack-resource \
   --stack-name "$STACK_NAME" \
+  --logical-resource-id WebServerInstance \
   --region "$REGION" \
-  --query "Stacks[0].Outputs[?OutputKey=='URL'].OutputValue" \
+  --query "StackResourceDetail.PhysicalResourceId" \
+  --output text)
+  
+if [ -z "$INSTANCE_ID" ]; then
+  echo "Failed to get instance ID for WebServerInstance in stack $STACK_NAME."
+  exit 1
+fi
+
+# Get the public DNS of the instance
+URL=$(aws ec2 describe-instances \
+  --instance-ids "$INSTANCE_ID" \
+  --region "$REGION" \
+  --query "Reservations[0].Instances[0].PublicDnsName" \
   --output text)
 
+echo $URL
+echo "$KEY_FILE_PATH"
 scp -o "StrictHostKeyChecking=no" -i "$KEY_FILE_PATH" -r "$DATA_PATH" "ubuntu@$URL:/home/ubuntu/"
