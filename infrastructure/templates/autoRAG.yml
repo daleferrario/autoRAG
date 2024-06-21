@@ -61,20 +61,24 @@ Mappings:
     us-west-2:
       AMIID: ami-077157cfd5b5214eb
 
+Resources:
   VPC:
     Type: AWS::EC2::VPC
     Properties:
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       CidrBlock: 10.0.0.0/16
+
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
         Ref: VPC
       CidrBlock: 10.0.0.0/24
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -82,11 +86,13 @@ Mappings:
         Ref: VPC
       InternetGatewayId:
         Ref: InternetGateway
+
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
         Ref: VPC
+
   PublicRoute:
     Type: AWS::EC2::Route
     DependsOn: VPCGatewayAttachment
@@ -96,6 +102,7 @@ Mappings:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
         Ref: InternetGateway
+
   PublicSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -103,6 +110,7 @@ Mappings:
         Ref: PublicSubnet
       RouteTableId:
         Ref: PublicRouteTable
+
   PublicSubnetNetworkAclAssociation:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
@@ -112,6 +120,7 @@ Mappings:
         Fn::GetAtt:
           - VPC
           - DefaultNetworkAcl
+
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -127,16 +136,16 @@ Mappings:
           FromPort: "22"
           ToPort: "22"
           CidrIp: 0.0.0.0/0
+
   WebServerInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType:
         Ref: InstanceType
-       ImageId: !FindInMap
+      ImageId: !FindInMap
         - RegionMap
         - !Ref "AWS::Region"
         - AMIID
-      #  Ref: LatestAmiId
       NetworkInterfaces:
         - GroupSet:
             - Ref: WebServerSecurityGroup
@@ -155,20 +164,8 @@ Mappings:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          # Nvidia drivers
-          # sudo apt install ubuntu-drivers-common alsa-utils -y
-          # sudo ubuntu-drivers install --gpgpu
-          # docker
-          apt-get install apt-transport-https ca-certificates curl software-properties-common -y
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          apt update
-          apt-cache policy docker-ce
-          apt install docker-ce -y
-          usermod -aG docker ubuntu
-          # ollama
           docker run --gpus all --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-          while [ $(docker inspect -f {{.State.Running}} ollama) != "true" ]; do
+          while [ $(docker inspect -f "{{.State.Running}}" ollama) != "true" ]; do
             echo "Waiting for container to be up..."
             sleep 1
           done
