@@ -164,7 +164,14 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          docker run --gpus all --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+          if nvidia-smi -L &> /dev/null; then
+            echo "GPU detected."
+            GPU_OPTION="--gpus all"
+          else
+            echo "No GPU detected."
+            GPU_OPTION=""
+          fi
+          docker run $GPU_OPTION --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
           while [ $(docker inspect -f "{{.State.Running}}" ollama) != "true" ]; do
             echo "Waiting for container to be up..."
             sleep 1
