@@ -41,7 +41,7 @@ done
 awk -v new_mappings="$AMI_MAPPINGS" '
   BEGIN {in_mappings = 0}
   /^Mappings:/ {print; in_mappings = 1; next}
-  /^Resources:/ {in_mappings = 0}
+  /^Resources:/ {print; in_mappings = 0}
   !in_mappings {print}
   in_mappings {
     if (/^  RegionMap:/) {
@@ -53,4 +53,5 @@ awk -v new_mappings="$AMI_MAPPINGS" '
     }
   }
 ' "$TEMPLATE_FILE" > "$TEMPLATE_FILE.tmp" && mv "$TEMPLATE_FILE.tmp" "$TEMPLATE_FILE"
+
 echo "Updated CloudFormation template with new AMI IDs."
