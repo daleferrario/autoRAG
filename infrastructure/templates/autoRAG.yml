@@ -4,10 +4,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "AWS CloudFormation Template for AutoRAG. Deploys VPC and networking resources and an EC2 webserver."
 
 Parameters:
-  LatestAmiId:
-    Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
-    Default: "/aws/service/canonical/ubuntu/server/22.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
-    Description: "The Ubuntu 22.04 LTS Stable AMI ID from SSM Parameter Store"
   KeyPair:
     Description: Name of the keypair to use for SSH access
     Type: String
