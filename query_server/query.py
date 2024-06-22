@@ -1,11 +1,12 @@
 from llama_index.llms.ollama import Ollama
-from pathlib import Path
-from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryReader, StorageContext, Settings, PromptTemplate
+from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate
+from llama_index.readers.google import GoogleDriveReader
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess, ollama
+import logging, warnings, chromadb, os, argparse, ollama
+import json
 
-# Usage: PROGRAM [-v --local -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
+# Usage: PROGRAM -f <google_drive_folder_id> [-v --local -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
 # All arguments are optional
 # -v is included to turn on logging at the INFO level, saving to a log file
 # -e <embedding_model> is a model from HuggingFace, default is "BAAI/bge-base-en-v1.5"
@@ -14,6 +15,7 @@ import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess, oll
 # -p <personality_used> is a sentence or paragraph, default is an experienced manager
 # -q <query_type> is an incomplete sentence:), default is "answer the query", another good option is "comment on a post"
 # -l <llm> is a large learning model, default is tinydolphin
+# -f", "--google_drive_folder_id",required=True, type=str, help="The ID of the folder to use as the source for the files we need to embed and use for context.
 
 def parse_args():
   """Parses arguments from the command line."""
@@ -25,6 +27,7 @@ def parse_args():
   parser.add_argument("-p", "--personality_used", type=str, default="an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines", help="Personality used")
   parser.add_argument("-t", "--query_type", type=str, default="answer the query", help="Query type")
   parser.add_argument("-l", "--llm", type=str, default="tinydolphin", help="Large language model")
+  parser.add_argument("-f", "--google_drive_folder_id",required=True, type=str, help="The ID of the folder to use as the source for the files we need to embed and use for context.")
   return parser.parse_args()
 
 args = parse_args()
@@ -39,6 +42,7 @@ if args.verbose:
         datefmt="%Y-%m-%d %H:%M:%S",
         filename="log/dgm.log",
     )
+logging.info('Arguments: {args}')
 
 def warning_to_log(message, category, filename, lineno, file=None, line=None):
     log = logging.getLogger('py.warnings')
@@ -47,62 +51,38 @@ def warning_to_log(message, category, filename, lineno, file=None, line=None):
 # Redirect warnings to the logging module
 warnings.showwarning = warning_to_log
 
-# Print or use the parsed arguments here
-logging.info("ARGUMENTS")
-logging.info(f"verbose: {args.verbose}")
-logging.info(f"embedding_model: {args.embedding_model}")
-logging.info(f"chunk_size: {args.chunk_size}")
-logging.info(f"chunk_overlap: {args.chunk_overlap}")
-logging.info(f"personality_used: {args.personality_used}")
-logging.info(f"query_type: {args.query_type}")
-logging.info(f"llm: {args.llm}")
+# Variables
+collection_name_used = "data"
+google_drive_service_account_key_path="service_account_key.json"
+ollama_request_timeout=600.0
+chromadb_port = 8000
 
 logging.info("STARTING")
 
-# Set up
-llm_model_used = args.llm
-embedding_model_used = args.embedding_model
-document_directory_used = "/data"
-collection_name_used = "data"
-chunk_size_used = args.chunk_size
-chunk_overlap_used = args.chunk_overlap
-personality_used = args.personality_used
-type_of_query_used= args.query_type
+# Load the LLM model that will be used
+ollama.pull(args.llm)
 
-# Set embeddings model
-Settings.embed_model = HuggingFaceEmbedding(model_name=embedding_model_used)
+# Llama Index settings
+Settings.embed_model = HuggingFaceEmbedding(model_name=args.embedding_model)
+Settings.llm = Ollama(model=args.llm, request_timeout=ollama_request_timeout)
+Settings.chunk_size=args.chunk_size
+Settings.chunk_overlap=args.chunk_overlap
 
 # Load data
-documents = SimpleDirectoryReader(document_directory_used).load_data()
+documents = GoogleDriveReader(service_account_key_path=google_drive_service_account_key_path).load_data(folder_id=args.google_drive_folder_id)
 documents_loaded=len(documents)
 logging.info("DOCUMENTS LOADED: %d", documents_loaded)
 
-# Create ChromaDB
-chroma_client = chromadb.HttpClient(host=os.getenv('HOST', 'localhost'), port=8000)
+# Connect to ChromaDB
+chroma_client = chromadb.HttpClient(host=os.getenv('HOST', 'localhost'), port=chromadb_port)
 chroma_collection = None
 try:
-    # Attempt to get the existing collection
     chroma_collection = chroma_client.get_collection(collection_name_used)
 except:
-    # If the collection doesn't exist, create it
     chroma_collection = chroma_client.create_collection(collection_name_used)
-vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-storage_context = StorageContext.from_defaults(vector_store=vector_store)
-
-logging.info("CHROMADB CREATED")
-
-# Load the LLM model that will be used
-ollama.pull(llm_model_used)
- 
-## Initialize Ollama and ServiceContext, using the requested LLM model
-Settings.llm = Ollama(model=llm_model_used, request_timeout=600.0)
-Settings.chunk_size=chunk_size_used
-Settings.chunk_overlap=chunk_overlap_used
-
-logging.info("OLLAMA SERVICES INITIALIZED")
-
-## Llama Index
-index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+storage_context = StorageContext.from_defaults(vector_store=ChromaVectorStore(chroma_collection=chroma_collection))
+## Create query engine
+index = VectorStoreIndex(storage_context=storage_context)
 query_engine = index.as_query_engine()
 
 logging.info("DOCUMENTS INDEXED")
@@ -138,8 +118,8 @@ while(prompt_input != "done"):
     new_summary_tmpl = PromptTemplate(new_summary_tmpl_str)
 
     new_summary_tmpl_filled = new_summary_tmpl.partial_format(
-        type_of_query=type_of_query_used,
-        personality=personality_used,
+        type_of_query=args.query_type,
+        personality=args.personality_used,
     )
 
     query_engine.update_prompts(

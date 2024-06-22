@@ -3,3 +3,4 @@ data
 *.log
 .status
 *.key
+service_account_key.json
