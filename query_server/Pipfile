@@ -8,6 +8,7 @@ llama-index = "*"
 llama-index-llms-ollama = "*"
 chromadb-client = "*"
 llama-index-vector-stores-chroma = "*"
+flask = "*"
 
 [dev-packages]
 

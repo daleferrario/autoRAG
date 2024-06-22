@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from llama_index.llms.ollama import Ollama
-from llama_index.core import VectorStoreIndex, StorageContext, Settings, PromptTemplate
-from llama_index.readers.google import GoogleDriveReader
+from llama_index.core import VectorStoreIndex, Settings, PromptTemplate
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
 import logging
