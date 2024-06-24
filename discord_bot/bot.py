@@ -1,39 +1,68 @@
 import discord
 from discord.ext import commands
+import logging
+import os
+import aiohttp
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Function to read the token from a file
 def read_token():
-    with open('bot.key', 'r') as file:
-        return file.read().strip()
+    try:
+        with open('bot.key', 'r') as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        logging.error("Token file not found. Please ensure 'bot.key' exists.")
+        raise
+    except Exception as e:
+        logging.error(f"An error occurred while reading the token: {e}")
+        raise
 
 # Set up intents
 intents = discord.Intents.default()
-intents.message_content = True  # Ensure this is set to True if you need to read message content
-intents.dm_messages = True  # Ensure the bot can handle DMs
 
 # Create bot instance
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Read REST server host and port from environment variables
+REST_SERVER_HOST = os.getenv('REST_SERVER_HOST', 'localhost')
+REST_SERVER_PORT = os.getenv('REST_SERVER_PORT', '8000')
+
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user}')
+    logging.info(f'Logged in as {bot.user}')
+    try:
+        synced = await bot.tree.sync()
+        logging.info(f'Synced {len(synced)} commands')
+    except Exception as e:
+        logging.error(f'Failed to sync commands: {e}')
 
-@bot.command()
-async def hello(ctx):
-    await ctx.send('Hello!')
-
-# Event listener for all messages
-@bot.event
-async def on_message(message):
-    # Check if the message is from the bot itself to avoid infinite loops
-    if message.author == bot.user:
-        return
-    
-    # Check if the message is a DM
-    if isinstance(message.channel, discord.DMChannel):
-        await message.channel.send('Hello! How can I help you?')
+@bot.tree.command(name="distill-question", description="Submit a question for distillation")
+async def distill_question(interaction: discord.Interaction, question: str):
+    guild = interaction.guild  # Capture the guild where the command was invoked
+    await interaction.response.defer()  # Defer the response to give more time
+    if guild:
+        guild_id = guild.id
+        response = await send_question_to_rest_server(guild_id, question)
+        await interaction.followup.send(f"You asked in {guild.name}: {question}\nServer response: {response}")
     else:
-        await bot.process_commands(message)
+        await interaction.followup.send(f"You asked: {question}\nLet me distill that for you...")
+
+async def send_question_to_rest_server(guild_id: int, question: str) -> str:
+    url = f"http://{REST_SERVER_HOST}:{REST_SERVER_PORT}/process"
+    params = {'guild_id': guild_id, 'question': question}
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                if response.status == 200:
+                    return await response.text()
+                else:
+                    logging.error(f"Failed to get response from server: {response.status}")
+                    return "Failed to get response from server."
+    except aiohttp.ClientError as e:
+        logging.error(f"HTTP request failed: {e}")
+        return "Failed to connect to the server."
 
 # Read token from file
 token = read_token()
