@@ -178,7 +178,8 @@ Resources:
           done
           docker exec ollama ollama run ${ModelName}
           # chroma
-          docker run --restart=always -d -p 8000:8000 --network distill_network --name chromadb chromadb/chroma
+          docker volume create chromadb-data
+          docker run --restart=always -d -p 8000:8000 -v chromadb-data:/data --network distill_network --name chromadb chromadb/chroma
           # discord
           docker run --restart=always -d -e BOT_KEY=${DiscordBotKey} --network distill_network --name discord_bot ajferrario/distill/discord-bot
 
