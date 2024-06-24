@@ -167,20 +167,17 @@ Resources:
             echo "No GPU detected."
             GPU_OPTION=""
           fi
-          docker run $GPU_OPTION --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+          docker network create distill_network
+          docker run $GPU_OPTION --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --network distill_network --name ollama ollama/ollama
           while [ $(docker inspect -f "{{.State.Running}}" ollama) != "true" ]; do
             echo "Waiting for container to be up..."
             sleep 1
           done
           docker exec ollama ollama run ${ModelName}
           # chroma
-          docker pull chromadb/chroma
-          docker run --restart=always -d -p 8000:8000 --name chromadb chromadb/chroma
-          # app
-          mkdir -p /home/ubuntu/data
-          mkdir -p /home/ubuntu/log
-          chown ubuntu /home/ubuntu/data
-          chown ubuntu /home/ubuntu/log
+          docker run --restart=always -d -p 8000:8000 --network distill_network --name chromadb chromadb/chroma
+          # discord
+          docker run --restart=always -d --network distill_network --name discord_bot ajferrario/distill/discord-bot
 
 Outputs:
   URL:

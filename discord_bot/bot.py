@@ -26,7 +26,6 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Read REST server host and port from environment variables
-REST_SERVER_HOST = os.getenv('REST_SERVER_HOST', 'localhost')
 REST_SERVER_PORT = os.getenv('REST_SERVER_PORT', '8000')
 
 @bot.event
@@ -50,8 +49,10 @@ async def distill_question(interaction: discord.Interaction, question: str):
         await interaction.followup.send(f"You asked: {question}\nLet me distill that for you...")
 
 async def send_question_to_rest_server(guild_id: int, question: str) -> str:
-    url = f"http://{REST_SERVER_HOST}:{REST_SERVER_PORT}/process"
-    params = {'guild_id': guild_id, 'question': question}
+    url = f"http://llama-index.{guild_id}:{REST_SERVER_PORT}/query"
+    params = {'question': question}
+    # TODO: remove the hack of treating a guild_id as a customer_id. In future there's probably a customerID lookup here based
+    # on the guild ID.
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
