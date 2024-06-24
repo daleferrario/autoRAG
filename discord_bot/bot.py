@@ -9,8 +9,12 @@ logging.basicConfig(level=logging.INFO)
 
 # Function to read the token from a file
 def read_token():
+    if os.getenv('BOT_KEY'):
+        logging.info("Found Key in ENV.")
+        return os.getenv('BOT_KEY')
     try:
         with open('bot.key', 'r') as file:
+            logging.info("Found Key in file.")
             return file.read().strip()
     except FileNotFoundError:
         logging.error("Token file not found. Please ensure 'bot.key' exists.")
@@ -65,8 +69,5 @@ async def send_question_to_rest_server(guild_id: int, question: str) -> str:
         logging.error(f"HTTP request failed: {e}")
         return "Failed to connect to the server."
 
-# Read token from file
-token = read_token()
-
 # Run the bot
-bot.run(token)
+bot.run(read_token())
