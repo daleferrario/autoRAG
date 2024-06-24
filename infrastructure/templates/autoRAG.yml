@@ -7,6 +7,9 @@ Parameters:
   KeyPair:
     Description: Name of the keypair to use for SSH access
     Type: String
+  DiscordBotKey:
+    Description: Bot Key for discord app
+    Type: String
   ChromaVersion:
     Description: Chroma version to install
     Type: String
@@ -177,7 +180,7 @@ Resources:
           # chroma
           docker run --restart=always -d -p 8000:8000 --network distill_network --name chromadb chromadb/chroma
           # discord
-          docker run --restart=always -d --network distill_network --name discord_bot ajferrario/distill/discord-bot
+          docker run --restart=always -d -e BOT_KEY=${DiscordBotKey} --network distill_network --name discord_bot ajferrario/distill/discord-bot
 
 Outputs:
   URL:
