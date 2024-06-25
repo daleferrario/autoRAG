@@ -8,14 +8,15 @@ import os
 # Environment Variables
 collection_name = os.getenv("CUSTOMER_ID")
 google_drive_folder_id = os.getenv("FOLDER_ID")
-host = os.getenv('HOST', 'localhost')
+google_drive_service_account_key = os.getenv("SERVICE_ACCOUNT_KEY", None)
 
 # Local Variables
+chromadb_host = "chromadb"
 chromadb_port = 8000
 chunk_size = 1024
 chunk_overlap = 20
 embedding_model = "BAAI/bge-base-en-v1.5"
-google_drive_service_account_key_path="service_account_key.json"
+google_drive_service_account_key_path = "service_account_key.json"
 
 
 # Embedding Settings
@@ -24,11 +25,14 @@ Settings.chunk_size = chunk_size
 Settings.chunk_overlap = chunk_overlap
 
 # Collect documents
-reader = GoogleDriveReader(service_account_key_path=google_drive_service_account_key_path)
+if google_drive_service_account_key:
+  reader = GoogleDriveReader(service_account_key=google_drive_service_account_key)
+else:
+  reader= GoogleDriveReader(service_account_key_path=google_drive_service_account_key_path)
 documents = reader.load_data(folder_id=google_drive_folder_id)
 
 # Create Storage Context
-chroma_client = chromadb.HttpClient(host=host, port=chromadb_port)
+chroma_client = chromadb.HttpClient(host=chromadb_host, port=chromadb_port)
 
 if collection_name in chroma_client.list_collections():
   # TODO: Remove this hack and implement an id-based upsert
