@@ -34,3 +34,9 @@ infrastructure/scripts/load_data.sh -d ~/autoRAG/data
 # Llama2b - medium
 # GPT-2 - small
 infrastructure/scripts/run.sh -l <llm> [-v -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -q <query_type>]
+
+infrastructure/stripts/hibernate.sh
+
+infrastructure/scripts/wake.sh
+
+infrastructure/scripts/teardown.sh
