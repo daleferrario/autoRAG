@@ -3,11 +3,13 @@ version: '3.8'
 services:
   chromadb:
     image: chromadb/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
     container_name: chromadb
     ports:
       - "8000:8000"
     volumes:
-      - chroma_volume:/chroma/.chroma
+      - chroma_volume:/chroma/chroma
     networks:
       - distill_network
     restart: always
