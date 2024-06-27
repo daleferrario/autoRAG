@@ -44,10 +44,10 @@ echo "$URL"
 echo "Passing through arguments: $@"
 
 INITIAL_COMMANDS="\
-[ nvidia-smi -L &> /dev/null ] && GPU_OPTION=\"--gpus all\"
+[ nvidia-smi -L &> /dev/null ] && \
 echo \"Running Docker pull and run commands\"; \
 docker pull ajferrario/autorag:latest; \
-docker run \$GPU_OPTION --rm -it \
+docker run --gpus all --rm -it \
   -v /home/ubuntu/data:/data \
   -v /home/ubuntu/log:/home/appuser/log \
   --network host \

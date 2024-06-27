@@ -4,7 +4,8 @@ from llama_index.core import VectorStoreIndex, ServiceContext, SimpleDirectoryRe
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 import sys, datetime, logging, warnings, chromadb, os, argparse, subprocess, ollama
-from llama_index.core.callbacks.simple_llm_handler import SimpleLLMHandler
+from llama_index.core.callbacks import CallbackManager
+import simple_llm_handler
 
 # Usage: PROGRAM [-v --local -e <embedding_model> -c <chunk_size> -o <chunk_overlap> -p <personality_used> -t <query_type> -l <llm>]
 # All arguments are optional
@@ -56,6 +57,8 @@ logging.info(f"personality_used: {args.personality_used}")
 logging.info(f"query_type: {args.query_type}")
 logging.info(f"llm: {args.llm}")
 
+exit(0)
+
 logging.info("STARTING")
 
 # Set up
@@ -100,7 +103,7 @@ Settings.chunk_overlap=chunk_overlap_used
 
 logging.info("OLLAMA SERVICES INITIALIZED")
 
-llama_llm_print=SimpleLLMHandler()
+llama_llm_print=simple_llm_handler.SimpleLLMHandler() 
 callback_manager=CallbackManager([llama_llm_print])
 
 ## Llama Index
