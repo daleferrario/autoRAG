@@ -58,5 +58,3 @@ docker-compose -f "$(dirname "$SCRIPT_DIR")/docker-compose-customer.yml" logs -f
 # Wait for all background logging processes to end
 wait $SHARED_LOG_PID
 wait $CUSTOMER_LOG_PID
-
-echo "wonder when this will show up"
