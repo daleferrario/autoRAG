@@ -9,6 +9,7 @@ llama-index-llms-ollama = "*"
 chromadb-client = "*"
 llama-index-vector-stores-chroma = "*"
 flask = "*"
+llama-index-embeddings-huggingface = "*"
 
 [dev-packages]
 

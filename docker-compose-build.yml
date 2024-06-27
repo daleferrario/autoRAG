@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  data_loader:
+    build:
+      context: ./data_loader
+    image: ajferrario/distill-data-loader:latest
+
+  discord_bot:
+    build:
+      context: ./discord_bot
+    image: ajferrario/distill-discord-bot:latest
+  
+  query_server:
+    build:
+      context: ./query_server
+    image: ajferrario/distill-query-server

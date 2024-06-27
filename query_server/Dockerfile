@@ -32,6 +32,6 @@ COPY --chown=appuser:appuser . .
 RUN mkdir -p /home/appuser/log && chown appuser:appuser /home/appuser/log
 
 # Run the application
-ENTRYPOINT ["python", "query.py"]
+ENTRYPOINT ["python", "query_server.py"]
 # No default args
 CMD []
