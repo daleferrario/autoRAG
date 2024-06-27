@@ -7,21 +7,10 @@ Parameters:
   KeyPair:
     Description: Name of the keypair to use for SSH access
     Type: String
-  DiscordBotKey:
-    Description: Bot Key for discord app
-    Type: String
-  ChromaVersion:
-    Description: Chroma version to install
-    Type: String
-    Default: 0.5.0
   InstanceType:
     Description: EC2 instance type
     Type: String
     Default: t3.small
-  ModelName:
-    Description: LLM model name to deploy
-    Type: String
-    Default: tinydolphin
 
 Mappings:
   RegionMap:
@@ -160,33 +149,3 @@ Resources:
           Ebs:
             VolumeSize: 96 # Size in GiB
             VolumeType: gp2 # General Purpose SSD
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash -xe
-          if nvidia-smi -L &> /dev/null; then
-            echo "GPU detected."
-            GPU_OPTION="--gpus all"
-          else
-            echo "No GPU detected."
-            GPU_OPTION=""
-          fi
-          docker network create distill_network
-          docker run $GPU_OPTION --restart=always -d -v ollama:/root/.ollama -p 11434:11434 --network distill_network --name ollama ollama/ollama
-          while [ $(docker inspect -f "{{.State.Running}}" ollama) != "true" ]; do
-            echo "Waiting for container to be up..."
-            sleep 1
-          done
-          docker exec ollama ollama run ${ModelName}
-          # chroma
-          docker volume create chromadb-data
-          docker run --restart=always -d -p 8000:8000 -v chromadb-data:/data --network distill_network --name chromadb chromadb/chroma
-          # discord
-          docker run --restart=always -d -e BOT_KEY=${DiscordBotKey} --network distill_network --name discord_bot ajferrario/distill/discord-bot
-
-Outputs:
-  URL:
-    Description: URL of the RAG server
-    Value:
-      Fn::GetAtt:
-        - WebServerInstance
-        - PublicDnsName

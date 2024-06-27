@@ -1,6 +1,6 @@
 # avoid commiting data
 data
 *.log
-.status
+*.state
 *.key
 service_account_key.json
