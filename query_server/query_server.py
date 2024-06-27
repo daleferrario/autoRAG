@@ -3,6 +3,7 @@ from llama_index.llms.ollama import Ollama
 from llama_index.core import VectorStoreIndex, Settings, PromptTemplate
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from ollama import Client
 import chromadb
 import logging
 import os
@@ -33,6 +34,8 @@ app = Flask(__name__)
 query_engine = None
 
 def setup():
+    ollama_client = Client(host=f'http://{ollama_host}:{ollama_port}')
+    ollama_client.pull(model)
     # Create index from existing ChromaDB collection
     chroma_client = chromadb.HttpClient(host=chromadb_host, port=chromadb_port)
     vector_store = ChromaVectorStore(chroma_collection=chroma_client.get_collection(collection_name))

@@ -15,7 +15,7 @@ services:
     restart: always
 
   ollama:
-    image: ajferrario/distill-preloaded-ollama
+    image: ollama/ollama
     container_name: ollama
     ports:
       - "11434:11434"
