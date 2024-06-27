@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import json
 import logging
 import os
 import aiohttp
@@ -61,7 +62,8 @@ async def send_question_to_rest_server(guild_id: int, question: str) -> str:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, params=params) as response:
                 if response.status == 200:
-                    return await response.text()["message"]
+                    resp = await response.text()
+                    return json.loads(resp)["message"]
                 else:
                     logging.error(f"Failed to get response from server: {response.status}")
                     return "Failed to get response from server."
