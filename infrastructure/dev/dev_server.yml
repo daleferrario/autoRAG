@@ -1,6 +1,6 @@
----
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "AWS CloudFormation Template for AutoRAG. Deploys VPC and networking resources and an EC2 webserver."
+Description: "AWS CloudFormation Template for a dev server instance with SSH access."
+
 Parameters:
   LatestAmiId:
     Type: "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>"
@@ -13,6 +13,44 @@ Parameters:
     Description: EC2 instance type
     Type: String
     Default: c7a.large
+
+Mappings:
+  RegionMap:
+    ap-south-1:
+      AMIID: ami-09a8acc2f5e8e57fc
+    eu-north-1:
+      AMIID: ami-0d47c2063be189fce
+    eu-west-3:
+      AMIID: ami-087105eddcce56a62
+    eu-west-2:
+      AMIID: ami-0b5f907d2c783b251
+    eu-west-1:
+      AMIID: ami-0e1fae342f89b4159
+    ap-northeast-3:
+      AMIID: ami-0ba99e31f74da9be3
+    ap-northeast-2:
+      AMIID: ami-0fa30a83d31fe23b7
+    ap-northeast-1:
+      AMIID: ami-09b74ffed30c40197
+    ca-central-1:
+      AMIID: ami-0ab8e7f01912d7c19
+    sa-east-1:
+      AMIID: ami-0e3e137cb772e797b
+    ap-southeast-1:
+      AMIID: ami-0ef3c6e4897db11e2
+    ap-southeast-2:
+      AMIID: ami-0959229bf16364532
+    eu-central-1:
+      AMIID: ami-045ce093c1b9bab97
+    us-east-1:
+      AMIID: ami-08f2838a07f464634
+    us-east-2:
+      AMIID: ami-02d7f904d20fb845c
+    us-west-1:
+      AMIID: ami-0aae8920875bc744a
+    us-west-2:
+      AMIID: ami-077157cfd5b5214eb
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -20,14 +58,17 @@ Resources:
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       CidrBlock: 10.0.0.0/16
+
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId:
         Ref: VPC
       CidrBlock: 10.0.0.0/24
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -35,11 +76,13 @@ Resources:
         Ref: VPC
       InternetGatewayId:
         Ref: InternetGateway
+
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId:
         Ref: VPC
+
   PublicRoute:
     Type: AWS::EC2::Route
     DependsOn: VPCGatewayAttachment
@@ -49,6 +92,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
         Ref: InternetGateway
+
   PublicSubnetRouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -56,37 +100,28 @@ Resources:
         Ref: PublicSubnet
       RouteTableId:
         Ref: PublicRouteTable
-  PublicSubnetNetworkAclAssociation:
-    Type: AWS::EC2::SubnetNetworkAclAssociation
-    Properties:
-      SubnetId:
-        Ref: PublicSubnet
-      NetworkAclId:
-        Fn::GetAtt:
-          - VPC
-          - DefaultNetworkAcl
+
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Enable HTTP ingress
+      GroupDescription: Enable SSH access
       VpcId:
         Ref: VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: "80"
-          ToPort: "80"
-          CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
           CidrIp: 0.0.0.0/0
-  WebServerInstance:
+
+  DevServer:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType:
         Ref: InstanceType
-      ImageId:
-        Ref: LatestAmiId
+      ImageId: !FindInMap
+        - RegionMap
+        - !Ref "AWS::Region"
+        - AMIID
       NetworkInterfaces:
         - GroupSet:
             - Ref: WebServerSecurityGroup
@@ -100,19 +135,9 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-            VolumeSize: 32 # Size in GiB
+            VolumeSize: 128 # Size in GiB
             VolumeType: gp2 # General Purpose SSD
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
-          sudo apt update
-          sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt update
-          apt-cache policy docker-ce
-          sudo apt install docker-ce -y
-          sudo usermod -aG docker ubuntu
-          su - ubuntu
-          git clone https://github.com/daleferrario/autoRAG.git
-
+          su - ubuntu -c "git clone https://github.com/daleferrario/autoRAG.git"
