@@ -45,7 +45,7 @@ REGION="us-east-1"
 echo "Using low-cost region: $REGION"
 
 # Setting Deployment Name
-DEPLOYMENT_NAME="dev-server"
+DEPLOYMENT_NAME="dev-server-$(hostname)"
 
 KEY_PAIR=$(basename "$KEY_FILE_PATH" | cut -d. -f1)
 echo "Inferred KEY_PAIR based on KEY_FILE_PATH: $KEY_PAIR"
@@ -92,7 +92,8 @@ URL=$(aws ec2 describe-instances \
 echo "Public URL: $URL"
 
 # Write state file
-STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME.state"
+mkdir -p "$STATE_DIR/$DEPLOYMENT_NAME"
+STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME/$DEPLOYMENT_NAME.state"
 echo "Writing state file at: $STATE_PATH"
 {
   echo "DEPLOYMENT_NAME=\"$DEPLOYMENT_NAME\""

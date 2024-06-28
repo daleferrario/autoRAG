@@ -14,9 +14,9 @@ usage() {
 
 # Check if .state file exists
 echo "Collecting .state file"
-STATE_PATH="$STATE_DIR/dev-server.state"
+STATE_PATH="$STATE_DIR/dev-server-$(hostname)/dev-server-$(hostname).state"
 if [ ! -f "$STATE_PATH" ]; then
-  echo "$DEPLOYMENT_NAME.state not found!"
+  echo "dev-server-$(hostname).state not found!"
   usage
   exit 1
 fi

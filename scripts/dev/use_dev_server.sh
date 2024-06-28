@@ -14,9 +14,9 @@ usage() {
 
 # Check if .state file exists
 echo "Collecting .state file"
-STATE_PATH="$STATE_DIR/dev-server.state"
+STATE_PATH="$STATE_DIR/dev-server-$(hostname)/dev-server-$(hostname).state"
 if [ ! -f "$STATE_PATH" ]; then
-  echo "$STATE_PATH not found!"
+  echo "dev-server-$(hostname).state not found!"
   usage
 fi
 
@@ -124,4 +124,4 @@ echo "INSTRUCTIONS"
 echo "====================================================================================="
 echo "1 - Install SSH plugin or go to Remote Explorer's SSH section."
 echo "2 - Select SSH config file location if needed."
-echo "3 - Activate dev-server SSH"
+echo "3 - Activate dev-server-[YOUR_HOSTNAME] SSH"

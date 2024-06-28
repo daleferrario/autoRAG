@@ -75,7 +75,8 @@ aws cloudformation wait stack-create-complete --stack-name "$DEPLOYMENT_NAME" --
 aws cloudformation describe-stacks --stack-name "$DEPLOYMENT_NAME" --query "Stacks[0].StackStatus" --output text --region "$REGION"
 
 # Write state file
-STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME.state"
+mkdir -p "$STATE_DIR/$DEPLOYMENT_NAME"
+STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME/$DEPLOYMENT_NAME.state"
 echo "Writing state file at: $STATE_PATH"
 {
   echo "DEPLOYMENT_NAME=\"$DEPLOYMENT_NAME\""

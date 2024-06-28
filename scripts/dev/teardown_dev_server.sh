@@ -14,9 +14,9 @@ usage() {
 
 # Check if .state file exists
 echo "Collecting .state file"
-STATE_PATH="$STATE_DIR/dev-server.state"
+STATE_PATH="$STATE_DIR/dev-server-$(hostname)/dev-server-$(hostname).state"
 if [ ! -f "$STATE_PATH" ]; then
-  echo "$DEPLOYMENT_NAME.state not found!"
+  echo "dev-server-$(hostname).state not found!"
   usage
   exit 1
 fi
@@ -39,5 +39,5 @@ aws cloudformation wait stack-delete-complete --stack-name "$DEPLOYMENT_NAME" --
 
 
 # Delete .state file
-echo "Cleaning up state file at: $STATE_PATH"
-rm "$STATE_PATH"
+echo "Cleaning up state files at: $STATE_DIR/$DEPLOYMENT_NAME"
+rm -r "$STATE_DIR/$DEPLOYMENT_NAME"
