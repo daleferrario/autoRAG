@@ -6,11 +6,31 @@ set -e
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 echo $SCRIPT_DIR
 
+NO_GPU="-no-gpu"
 # Check for GPU
-if ! command -v nvidia-smi &> /dev/null; then
-    echo "Nvidia-smi could not be found. Running in CPU-only mode."
-    NO_GPU=-no-gpu
+if command -v nvidia-smi &> /dev/null; then
+    # Run nvidia-smi and capture the output
+    gpu_info=$(nvidia-smi 2>&1)
+    
+    # Check if nvidia-smi command ran successfully
+    if [ $? -eq 0 ]; then
+        # Check if GPU is detected
+        if echo "$gpu_info" | grep -q "NVIDIA-SMI"; then
+            echo "NVIDIA GPU detected."
+            NO_GPU=""
+        else
+            echo "No NVIDIA GPU detected."
+        fi
+    else
+        echo "nvidia-smi command failed."
+    fi
+else
+    echo "nvidia-smi is not installed."
 fi
+
+# Output the value of NO_GPU variable
+echo "NO_GPU is set to: $NO_GPU"
+
 
 # Function to clean up background processes
 cleanup() {

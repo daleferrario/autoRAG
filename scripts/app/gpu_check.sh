@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Initialize NO_GPU variable
-export NO_GPU="-no-gpu"
+NO_GPU="-no-gpu"
 
 # Check if nvidia-smi is installed
 if command -v nvidia-smi &> /dev/null; then
