@@ -1,0 +1,24 @@
+services:
+  data_loader:
+    image: ajferrario/distill-data-loader:latest
+    environment:
+      CUSTOMER_ID: ${CUSTOMER_ID}
+      FOLDER_ID: ${FOLDER_ID}
+    container_name: data_loader
+    networks:
+      - distill_network
+
+  query_server:
+    image: ajferrario/distill-query-server:latest
+    environment:
+      CUSTOMER_ID: ${CUSTOMER_ID}
+    container_name: llama-index.${CUSTOMER_ID}
+    ports:
+      - "8001:8001"
+    networks:
+      - distill_network
+    restart: always
+
+networks:
+  distill_network:
+    external: true
