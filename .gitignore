@@ -3,4 +3,5 @@ data
 *.log
 *.state
 *.key
+state/*/*.env
 service_account_key.json
