@@ -31,6 +31,10 @@ while getopts ":n:" opt; do
   esac
 done
 
+if [ -z "$DEPLOYMENT_NAME" ]; then
+  usage
+fi
+
 # Check if .state file exists
 echo "Collecting .state file"
 STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME/$DEPLOYMENT_NAME.state"

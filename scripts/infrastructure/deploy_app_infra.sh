@@ -74,6 +74,56 @@ aws cloudformation wait stack-create-complete --stack-name "$DEPLOYMENT_NAME" --
 # Output the stack status
 aws cloudformation describe-stacks --stack-name "$DEPLOYMENT_NAME" --query "Stacks[0].StackStatus" --output text --region "$REGION"
 
+echo "Collecting instance ID"
+INSTANCE_ID=$(aws cloudformation describe-stack-resource \
+  --stack-name "$DEPLOYMENT_NAME" \
+  --logical-resource-id DevServer \
+  --region "$REGION" \
+  --query "StackResourceDetail.PhysicalResourceId" \
+  --output text)
+
+if [ -z "$INSTANCE_ID" ]; then
+  echo "Failed to get instance ID for DevServer in stack $DEPLOYMENT_NAME."
+  exit 1
+fi
+echo "Instance ID: $INSTANCE_ID"
+
+# Function to check instance status
+check_instance_status() {
+    aws ec2 describe-instance-status \
+        --instance-ids "$INSTANCE_ID" \
+        --region "$REGION" \
+        --query 'InstanceStatuses[0].InstanceStatus.Status' \
+        --output text
+}
+
+# Function to check system status
+check_system_status() {
+    aws ec2 describe-instance-status \
+        --instance-ids "$INSTANCE_ID" \
+        --region "$REGION" \
+        --query 'InstanceStatuses[0].SystemStatus.Status' \
+        --output text
+}
+
+# Wait until both instance and system status are 'ok'
+echo Wait until both instance and system status are 'ok'
+while true; do
+    INSTANCE_STATUS=$(check_instance_status)
+    SYSTEM_STATUS=$(check_system_status)
+
+    echo "Instance status: $INSTANCE_STATUS"
+    echo "System status: $SYSTEM_STATUS"
+
+    if [ "$INSTANCE_STATUS" == "ok" ] && [ "$SYSTEM_STATUS" == "ok" ]; then
+        echo "Instance $INSTANCE_ID has finished initializing."
+        break
+    else
+        echo "Instance $INSTANCE_ID is still initializing. Waiting..."
+        sleep 10
+    fi
+done
+
 # Write state file
 mkdir -p "$STATE_DIR/$DEPLOYMENT_NAME"
 STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME/$DEPLOYMENT_NAME.state"
