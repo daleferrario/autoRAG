@@ -42,6 +42,14 @@ if [ -z "$INSTANCE_ID" ]; then
 fi
 echo "Instance ID: $INSTANCE_ID"
 
+# Start instance if needed
+echo "Starting Instance if needed"
+aws ec2 start-instances --instance-ids "$INSTANCE_ID" --region "$REGION"
+
+# Wait for the instance to start
+echo "Waiting for instance to be running"
+aws ec2 wait instance-running --instance-ids "$INSTANCE_ID" --region "$REGION"
+
 # Get the public DNS of the instance
 echo "Getting public DNS for Instance."
 URL=$(aws ec2 describe-instances \
@@ -116,5 +124,4 @@ echo "INSTRUCTIONS"
 echo "====================================================================================="
 echo "1 - Install SSH plugin or go to Remote Explorer's SSH section."
 echo "2 - Select SSH config file location if needed."
-echo "3 - Refresh Remotes connection list (top right, icon not visible until you mouse over section)"
-echo "4 - Activate dev-server SSH"
+echo "3 - Activate dev-server SSH"
