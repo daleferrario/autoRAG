@@ -39,7 +39,7 @@ fi
 
 # Check if .state file exists
 echo "Collecting .state file"
-STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME.state"
+STATE_PATH="$STATE_DIR/$DEPLOYMENT_NAME/$DEPLOYMENT_NAME.state"
 if [ ! -f "$STATE_PATH" ]; then
   echo "$DEPLOYMENT_NAME.state not found!"
   usage
