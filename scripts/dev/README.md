@@ -13,6 +13,7 @@ Deployment is done in us-east-1 so please make sure to use a keypair from that r
 Simple Example
 ```
 ./scripts/dev/deploy_dev_server.sh -k <path_to_key_pair>
+./scripts/dev/deploy_dev_server.sh -k <path_to_key_pair> -i t3a.2xlarge
 ```
 
 GPU server model
