@@ -12,6 +12,8 @@ services:
     image: ajferrario/distill-query-server:latest
     environment:
       CUSTOMER_ID: ${CUSTOMER_ID}
+      QUERY_SCOPE: ${QUERY_SCOPE}
+      PERSONALITY_USED: ${PERSONALITY_USED}
     container_name: llama-index.${CUSTOMER_ID}
     ports:
       - "8001:8001"

@@ -13,6 +13,8 @@ logging.basicConfig(level=logging.INFO)
 
 # Environment Variables
 collection_name = os.getenv("CUSTOMER_ID")
+personality_used = os.getenv("PERSONALITY_USED")
+query_scope = os.getenv("QUERY_SCOPE")
 
 # Local Variables
 llama_index_port = 8001
@@ -24,7 +26,8 @@ ollama_request_timeout = 600.0
 embedding_model_name = "BAAI/bge-base-en-v1.5"
 query_type = "answer the query"
 chromadb_host="chromadb"
-personality_used = "an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines"
+# personality_used = "an experienced manager who has had employees around the world, has delivered large projects, has worked with other managers and leaders, has seen lots of HR related issues and challenges, and has a good grasp of all management related disciplines"
+# query_scope = "Given the information provided as most important, and when needed leveraging prior knowledge"
 
 embed_model = HuggingFaceEmbedding(model_name=embedding_model_name)
 # Ollama settings
@@ -50,21 +53,21 @@ def setup():
         "---------------------\n"
         "{context_str}\n"
         "---------------------\n"
-        "Given the information provided as most important, and when needed leveraging prior knowledge, {type_of_query}. "
-        "Please generate the response in the style of {personality}.\n"
+        f"{query_scope}, {query_type}. "
+        f"Please generate the response in the style of {personality_used}.\n"
         "Query: {query_str}\n"
         "Answer: "
     )
 
     new_summary_tmpl = PromptTemplate(new_summary_tmpl_str)
 
-    new_summary_tmpl_filled = new_summary_tmpl.partial_format(
-        type_of_query=query_type,
-        personality=personality_used,
-    )
+#    new_summary_tmpl_filled = new_summary_tmpl.partial_format(
+#        type_of_query=query_type,
+#        personality=personality_used,
+#    )
 
     query_engine.update_prompts(
-        {"response_synthesizer:summary_template": new_summary_tmpl_filled}
+        {"response_synthesizer:summary_template": new_summary_tmpl}
     )
     logging.info("Query engine setup completed successfully.")
     return query_engine
