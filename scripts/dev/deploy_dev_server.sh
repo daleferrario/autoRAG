@@ -41,8 +41,8 @@ if [ -z "$KEY_FILE_PATH" ]; then
 fi
 
 # Setting Region
-REGION="us-east-1"
-echo "Using low-cost region: $REGION"
+REGION="us-west-1"
+echo "Using region: $REGION"
 
 # Setting Deployment Name
 DEPLOYMENT_NAME="dev-server-$(hostname)"

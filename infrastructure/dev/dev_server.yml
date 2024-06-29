@@ -131,8 +131,8 @@ Resources:
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
-            VolumeSize: 128 # Size in GiB
-            VolumeType: gp2 # General Purpose SSD
+            VolumeSize: 32 # Size in GiB
+            VolumeType: gp3 # General Purpose SSD
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
