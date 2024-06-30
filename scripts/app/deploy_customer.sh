@@ -5,7 +5,7 @@ set -e
 # Directory paths
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 STATE_DIR="$(dirname $(dirname $SCRIPT_DIR))/state"
-ROOT_DIR=$(dirname $(dirname $SCRIPT_DIR))
+ROOT_DIR=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)
 
 # Function to display usage
 usage() {
@@ -110,7 +110,7 @@ echo "Using CUSTOMER_NAME: $CUSTOMER_NAME"
 
 INITIAL_COMMANDS=$(cat <<EOF
 cd distill
-source ./gpu_check.sh
+NO_GPU=\$(./gpu_check.sh)
 docker compose -f "docker-compose-customer\$NO_GPU.yml" -p "$CUSTOMER_NAME" --env-file $CUSTOMER_ENV_FILE_NAME up data_loader -d
 nohup docker compose -f "docker-compose-customer\$NO_GPU.yml" -p "$CUSTOMER_NAME" --env-file $CUSTOMER_ENV_FILE_NAME logs -f >> log/docker-compose-customer-$CUSTOMER_NAME.log
 while docker ps | grep -q "data_loader"; do

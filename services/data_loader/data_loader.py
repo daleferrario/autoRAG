@@ -3,6 +3,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.readers.google import GoogleDriveReader
 from llama_index.vector_stores.chroma import ChromaVectorStore
 import chromadb
+import json
 import logging
 import os
 
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 # Environment Variables
 collection_name = os.getenv("CUSTOMER_ID")
 google_drive_folder_id = os.getenv("FOLDER_ID")
-google_drive_service_account_key = os.getenv("SERVICE_ACCOUNT_KEY", None)
+google_drive_service_account_key = json.loads(os.getenv("SERVICE_ACCOUNT_KEY"))
 
 # Log environment variables
 logger.info(f"Collection Name: {collection_name}")
@@ -25,19 +26,14 @@ chromadb_port = 8000
 chunk_size = 1024
 chunk_overlap = 20
 embedding_model_name = "BAAI/bge-base-en-v1.5"
-google_drive_service_account_key_path = "service_account_key.json"
 
 # Create Embedding Model
 Settings.embed_model = HuggingFaceEmbedding(model_name=embedding_model_name)
 logger.info("Embedding model created with HuggingFace model: %s", embedding_model_name)
 
 # Collect documents
-if google_drive_service_account_key:
-    reader = GoogleDriveReader(service_account_key=google_drive_service_account_key)
-    logger.info("Using service account key from environment variable.")
-else:
-    reader = GoogleDriveReader(service_account_key_path=google_drive_service_account_key_path)
-    logger.info("Using service account key from file: %s", google_drive_service_account_key_path)
+reader = GoogleDriveReader(service_account_key=google_drive_service_account_key)
+logger.info("Using service account key from environment variable.")
 
 documents = reader.load_data(folder_id=google_drive_folder_id)
 logger.info(f"Loaded {len(documents)} documents from Google Drive folder: {google_drive_folder_id}")

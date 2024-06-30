@@ -1,9 +1,13 @@
 services:
   data_loader:
     image: ajferrario/distill-data-loader:latest
+    env_file:
+      - ${ENV_FILE}
     environment:
-      CUSTOMER_ID: ${CUSTOMER_ID}
-      FOLDER_ID: ${FOLDER_ID}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - SERVICE_ACCOUNT_KEY=${SERVICE_ACCOUNT_KEY}
+    runtime: nvidia
     container_name: data_loader
     networks:
       - distill_network
@@ -15,10 +19,12 @@ services:
 
   query_server:
     image: ajferrario/distill-query-server:latest
+    env_file:
+      - ${ENV_FILE}
     environment:
-      CUSTOMER_ID: ${CUSTOMER_ID}
-      QUERY_SCOPE: ${QUERY_SCOPE}
-      PERSONALITY_USED: ${PERSONALITY_USED}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    runtime: nvidia
     container_name: llama-index.${CUSTOMER_ID}
     ports:
       - "8001:8001"

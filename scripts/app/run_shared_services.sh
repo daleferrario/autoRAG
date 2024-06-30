@@ -5,7 +5,7 @@ set -e
 # Directory paths
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 STATE_DIR="$(dirname $(dirname $SCRIPT_DIR))/state"
-ROOT_DIR=$(dirname $(dirname $SCRIPT_DIR))
+ROOT_DIR=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)
 
 # Function to display usage
 usage() {
@@ -92,7 +92,7 @@ scp -o "StrictHostKeyChecking=no" -i "$KEY_FILE_PATH" \
 INITIAL_COMMANDS=$(cat <<EOF
 cd distill
 mkdir log
-source ./gpu_check.sh
+NO_GPU=\$(./gpu_check.sh)
 docker compose -f "docker-compose-shared\$NO_GPU.yml" up -d
 nohup docker compose -f "docker-compose-shared\$NO_GPU.yml" logs -f >> "log/docker-compose-shared.log" &
 echo "Waiting for 'ollama' service to be up and responding..."
