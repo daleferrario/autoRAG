@@ -44,7 +44,7 @@ services:
       REST_SERVER_PORT: 8001
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
       SLACK_APP_TOKEN: ${SLACK_APP_TOKEN}
-    container_name: discord_bot
+    container_name: slack_app
     networks:
       - distill_network
     restart: always

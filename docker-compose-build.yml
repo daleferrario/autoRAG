@@ -11,6 +11,11 @@ services:
       context: ./services/discord_bot
     image: ajferrario/distill-discord-bot:latest
   
+  slack_app:
+    build:
+      context: ./services/slack_app
+    image: ajferrario/distill-slack-app:latest
+  
   query_server:
     build:
       context: ./services/query_server

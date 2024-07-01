@@ -7,14 +7,36 @@ set -e
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 ROOT_DIR=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)
 
-# Ensure ROOT_DIR was found
-if [[ -z "$ROOT_DIR" ]]; then
-    echo "Error: Could not determine the root directory of the git repository."
-    exit 1
-fi
+# Function to display usage
+usage() {
+  echo "Usage: $0 -n <deployment-name> -c <customer-env-file-path>"
+  exit 1
+}
 
+# Parse command-line arguments
+echo "Arguments:"
+while getopts ":e:" opt; do
+  echo "-$opt $OPTARG"
+  case $opt in
+    e)
+      ENV_FILE="$OPTARG"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      usage
+      ;;
+  esac
+done
+
+if [ -z "$ENV_FILE" ] ; then
+  ENV_FILE="$SCRIPT_DIR/discord_test.env"
+fi
 # Export the environment file
-export ENV_FILE="$SCRIPT_DIR/dgm_test.env"
+export ENV_FILE
 echo "Using ENV_FILE: $ENV_FILE"
 
 # Generate Docker Compose paths
@@ -36,8 +58,8 @@ trap cleanup SIGINT SIGTERM
 
 # Clean environment
 echo "Cleaning up environment"
-docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" down -v
-docker compose -f "$DOCKER_COMPOSE_SHARED_PATH" down -v
+docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" down -v --remove-orphans
+docker compose -f "$DOCKER_COMPOSE_SHARED_PATH" down -v --remove-orphans
 
 # Pull latest images
 echo "Pulling latest images"

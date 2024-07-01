@@ -227,12 +227,35 @@ if prompt_user "Do you want to provide paths for needed key files now?"; then
     else
         echo "service_account_key.json file not found at the provided path."
     fi
+
+    # Prompt user for slack_bot_token path
+    read -p "Please provide the path to slack_bot_token file: " SLACK_BOT_TOKEN_PATH
+    if [ -f "$SLACK_BOT_TOKEN_PATH" ]; then
+        cp "$SLACK_BOT_TOKEN_PATH" ~/.distill_keys/
+        echo "slack_bot_token has been copied to ~/.distill_keys/"
+        echo "export SLACK_BOT_TOKEN=$(cat ~/.distill_keys/slack_bot_token)" >> ~/.bashrc
+        echo "SLACK_BOT_TOKEN environment variable has been added to .bashrc"
+    else
+        echo "slack_bot_token file not found at the provided path."
+    fi
+    # Prompt user for slack_app_token path
+    read -p "Please provide the path to slack_app_token file: " SLACK_APP_TOKEN_PATH
+    if [ -f "$SLACK_APP_TOKEN_PATH" ]; then
+        cp "$SLACK_APP_TOKEN_PATH" ~/.distill_keys/
+        echo "slack_app_token has been copied to ~/.distill_keys/"
+        echo "export SLACK_APP_TOKEN=$(cat ~/.distill_keys/slack_app_token)" >> ~/.bashrc
+        echo "SLACK_APP_TOKEN environment variable has been added to .bashrc"
+    else
+        echo "slack_app_token file not found at the provided path."
+    fi
 else
     echo "You chose to skip providing keys."
     echo "Please ensure you place the 'bot.key' and 'service_account_key.json' files in the ~/.distill_keys/ directory."
     echo "Then add the following lines to your ~/.bashrc file:"
     echo "export DISCORD_BOT_KEY=\$(cat ~/.distill_keys/bot.key)"
     echo "export SERVICE_ACCOUNT_KEY=\$(cat ~/.distill_keys/service_account_key.json)"
+    echo "export SLACK_BOT_TOKEN=\$(cat ~/.distill_keys/slack_bot_token)"
+    echo "export SLACK_APP_TOKEN=\$(cat ~/.distill_keys/slack_app_token)"
     echo "The project will not function correctly without these keys."
 fi
 

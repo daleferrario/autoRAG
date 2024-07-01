@@ -38,7 +38,9 @@ query_engine = None
 
 def setup():
     ollama_client = Client(host=f'http://{ollama_host}:{ollama_port}')
+    logging.info(f"Pulling model: {model}")
     ollama_client.pull(model)
+    logging.info("Model pulled successfully!")
     # Create index from existing ChromaDB collection
     chroma_client = chromadb.HttpClient(host=chromadb_host, port=chromadb_port)
     vector_store = ChromaVectorStore(chroma_collection=chroma_client.get_collection(collection_name))
