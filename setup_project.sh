@@ -205,14 +205,14 @@ fi
 mkdir -p ~/.distill_keys
 
 # Prompt user to provide keys or skip
-if prompt_user "Do you want to provide paths for bot.key and service_account_key.json files now?"; then
+if prompt_user "Do you want to provide paths for needed key files now?"; then
     # Prompt user for bot.key path
-    read -p "Please provide the path to bot.key file: " BOT_KEY_PATH
-    if [ -f "$BOT_KEY_PATH" ]; then
-        cp "$BOT_KEY_PATH" ~/.distill_keys/
+    read -p "Please provide the path to bot.key file for discord_bot: " DISCORD_BOT_KEY_PATH
+    if [ -f "$DISCORD_BOT_KEY_PATH" ]; then
+        cp "$DISCORD_BOT_KEY_PATH" ~/.distill_keys/
         echo "bot.key has been copied to ~/.distill_keys/"
-        echo "export BOT_KEY=$(cat ~/.distill_keys/bot.key)" >> ~/.bashrc
-        echo "BOT_KEY environment variable has been added to .bashrc"
+        echo "export DISCORD_BOT_KEY=$(cat ~/.distill_keys/bot.key)" >> ~/.bashrc
+        echo "DISCORD_BOT_KEY environment variable has been added to .bashrc"
     else
         echo "bot.key file not found at the provided path."
     fi
@@ -231,7 +231,7 @@ else
     echo "You chose to skip providing keys."
     echo "Please ensure you place the 'bot.key' and 'service_account_key.json' files in the ~/.distill_keys/ directory."
     echo "Then add the following lines to your ~/.bashrc file:"
-    echo "export BOT_KEY=\$(cat ~/.distill_keys/bot.key)"
+    echo "export DISCORD_BOT_KEY=\$(cat ~/.distill_keys/bot.key)"
     echo "export SERVICE_ACCOUNT_KEY=\$(cat ~/.distill_keys/service_account_key.json)"
     echo "The project will not function correctly without these keys."
 fi

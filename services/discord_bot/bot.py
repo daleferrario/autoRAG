@@ -56,4 +56,4 @@ async def send_question_to_rest_server(guild_id: int, question: str) -> str:
         return "Failed to connect to the server."
 
 # Run the bot
-bot.run(os.getenv('BOT_KEY'))
+bot.run(os.getenv('DISCORD_BOT_KEY'))
