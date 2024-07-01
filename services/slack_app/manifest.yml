@@ -1,0 +1,22 @@
+display_information:
+  name: Distill
+  description: An AI model trained on your whole content catalog!
+  background_color: "#8a00a6"
+features:
+  bot_user:
+    display_name: Distill
+    always_online: true
+  slash_commands:
+    - command: /distill
+      description: Ask me a question about my content.
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - commands
+settings:
+  interactivity:
+    is_enabled: true
+  org_deploy_enabled: false
+  socket_mode_enabled: true
+  token_rotation_enabled: false
