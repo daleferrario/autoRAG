@@ -9,7 +9,7 @@ ROOT_DIR=$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null)
 
 # Function to display usage
 usage() {
-  echo "Usage: $0 -n <deployment-name> -c <customer-env-file-path>"
+  echo "Usage: $0 -e <customer-env-file-path>"
   exit 1
 }
 

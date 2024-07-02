@@ -63,6 +63,8 @@ def setup():
 
     new_summary_tmpl = PromptTemplate(new_summary_tmpl_str)
 
+    logging.info(f"New Summary Template\n{new_summary_tmpl}")
+
 #    new_summary_tmpl_filled = new_summary_tmpl.partial_format(
 #        type_of_query=query_type,
 #        personality=personality_used,
