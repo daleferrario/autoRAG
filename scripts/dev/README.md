@@ -40,3 +40,24 @@ The teardown script will delete the stack and all associated infrastructure. Be 
 ```
 ./scripts/dev/teardown_dev_server.sh
 ```
+
+## Start Docker Containers after Hibernate
+After restarting server, these containers need to be restarted, and ollama needs to have the models loaded and running.
+```
+docker run -d -p 11434:11434 --gpus all --name [ollama_container_name] ollama/ollama
+docker exec ollama [ollama_container_name] pull llama3
+docker exec ollama [ollama_container_name] run llama3
+```
+
+```
+export STORAGE_LOCATION=$HOME/anythingllm && \
+mkdir -p $STORAGE_LOCATION && \
+touch "$STORAGE_LOCATION/.env" && \
+docker run -d -p 3001:3001 \
+--gpus all \
+--cap-add SYS_ADMIN \
+-v ${STORAGE_LOCATION}:/app/server/storage \
+-v ${STORAGE_LOCATION}/.env:/app/server/.env \
+-e STORAGE_DIR="/app/server/storage" \
+mintplexlabs/anythingllm
+```
