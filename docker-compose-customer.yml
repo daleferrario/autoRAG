@@ -1,41 +1,61 @@
 services:
-  data_loader:
-    image: ajferrario/distill-data-loader:latest
-    env_file:
-      - ${ENV_FILE}
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      - SERVICE_ACCOUNT_KEY=${SERVICE_ACCOUNT_KEY}
-    runtime: nvidia
-    container_name: data_loader
-    networks:
+  anythingllm:
+      image: mintplexlabs/anythingllm
+      container_name: anythingllm.${CUSTOMER_ID}
+      ports:
+      - "3001:3001"
+      cap_add:
+        - SYS_ADMIN
+      environment:
+      # Server settings
+        - SERVER_PORT=3001
+        - STORAGE_DIR="/app/server/storage"
+        - UID='1000'
+        - GID='1000'
+      # Core LLM
+        - LLM_PROVIDER=ollama
+        - OLLAMA_BASE_PATH=http://ollama:11434
+        - OLLAMA_MODEL_PREF=llama3:latest
+        - OLLAMA_MODEL_TOKEN_LIMIT=4096
+      # Embedding
+        - EMBEDDING_ENGINE=ollama
+        - EMBEDDING_BASE_PATH=http://ollama:11434
+        - EMBEDDING_MODEL_PREF=mxbai-embed-large:latest
+        - EMBEDDING_MODEL_MAX_CHUNK_LENGTH=8192
+      # # Vector DB
+      #   - VECTOR_DB="chroma"
+      #   - CHROMA_ENDPOINT='http://chromadb:8000'
+      volumes:
+        - anythingllm_storage:/app/server/storage
+      networks:
       - distill_network
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
+      restart: always
 
-  query_server:
-    image: ajferrario/distill-query-server:latest
-    env_file:
-      - ${ENV_FILE}
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    runtime: nvidia
-    container_name: llama-index.${CUSTOMER_ID}
-    ports:
-      - "8001:8001"
-    networks:
-      - distill_network
-    restart: always
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
+  # anythingllm_storage_setup:
+  #       image: alpine:latest
+  #       container_name: anythingllm_storage_setup
+  #       command: >
+  #         sh -c "
+  #           while ! curl -s http://ollama:11434/api/list > /dev/null; do
+  #             echo 'Waiting for ollama server...'
+  #             sleep 1
+  #           done &&
+  #           curl -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"llama3\"}' &&
+  #           curl -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"mxbai-embed-large\"}'"
+  #       restart: "no"
+  #       volumes:
+  #       - anythingllm_storage:/app/server/storage
+  #       networks:
+  #         - distill_network
+  #       depends_on:
+
+volumes:
+  anythingllm_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/ubuntu/anythingllm_storage
 
 networks:
   distill_network:

@@ -27,6 +27,23 @@ services:
         reservations:
           devices:
             - capabilities: [gpu]
+  
+  ollama_model_puller:
+      image: curlimages/curl:latest
+      container_name: ollama_model_puller
+      command: >
+        sh -c "
+          while ! curl -s http://ollama:11434/api/list > /dev/null; do
+            echo 'Waiting for ollama server...'
+            sleep 1
+          done &&
+          curl -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"llama3\"}' &&
+          curl -X POST http://ollama:11434/api/pull -H 'Content-Type: application/json' -d '{\"name\": \"mxbai-embed-large\"}'"
+      restart: "no"
+      networks:
+        - distill_network
+      depends_on:
+        - ollama
 
   discord_bot:
     image: ajferrario/distill-discord-bot

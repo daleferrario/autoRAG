@@ -71,29 +71,11 @@ echo "Deploying shared services"
 docker compose -f "$DOCKER_COMPOSE_SHARED_PATH" up -d
 docker compose -f "$DOCKER_COMPOSE_SHARED_PATH" logs -f > "$SCRIPT_DIR/docker-compose-shared.log" &
 SHARED_LOG_PID=$!
-echo "Waiting for 'ollama' service to be up and responding..."
-until docker exec ollama ollama ps &> /dev/null; do
-    echo "Waiting for 'ollama' to respond..."
+while docker ps | grep -q "ollama_model_puller"; do
+    echo "Waiting for 'ollama_model_puller' to exit..."
     sleep 5
 done
-echo "'ollama' service is up and responding."
-
-# Load customer data
-echo "Loading data"
-docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" up data_loader -d
+# Deploy customer
+echo "Deploying anything_llm"
+docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" up -d
 docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" logs -f > "$SCRIPT_DIR/docker-compose-customer.log" &
-CUSTOMER_LOG_PID=$!
-while docker ps | grep -q "data_loader"; do
-    echo "Waiting for 'data_loader' to exit..."
-    sleep 5
-done
-echo "data_loader has exited."
-
-# Deploy customer query_server
-echo "Deploying query_server"
-docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" up query_server -d
-docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" --env-file "$ENV_FILE" logs -f >> "$SCRIPT_DIR/docker-compose-customer.log" &
-
-# Wait for all background logging processes to end
-wait $SHARED_LOG_PID
-wait $CUSTOMER_LOG_PID

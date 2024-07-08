@@ -8,7 +8,7 @@ State for the dev server will live in the state folder. You shouldn't need to me
 ## Deploy
 The deploy script will deploy a cloudformation stack containing an EC2 VM and the associated objects needed for SSH access and development. The repo will be pre-cloned on your dev server.
 
-Deployment is done in us-east-1 so please make sure to use a keypair from that region.
+Deployment is done in us-west-1 so please make sure to use a keypair from that region.
 
 Simple Example
 ```

@@ -1,11 +1,6 @@
 version: '3.8'
 
 services:
-  data_loader:
-    build:
-      context: ./services/data_loader
-    image: ajferrario/distill-data-loader:latest
-
   discord_bot:
     build:
       context: ./services/discord_bot
@@ -15,8 +10,3 @@ services:
     build:
       context: ./services/slack_app
     image: ajferrario/distill-slack-app:latest
-  
-  query_server:
-    build:
-      context: ./services/query_server
-    image: ajferrario/distill-query-server
