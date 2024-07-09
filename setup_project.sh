@@ -212,6 +212,16 @@ if prompt_user "Do you want to provide paths for needed key files now?"; then
     else
         echo "slack_app_token file not found at the provided path."
     fi
+    # Prompt user for DDNS_API_KEY path
+    read -p "Please provide the path to ddns_api.key file: " DDNS_API_KEY_PATH
+    if [ -f "$DDNS_API_KEY_PATH" ]; then
+        cp "$DDNS_API_KEY_PATH" ~/.distill_keys/
+        echo "ddns_api.key has been copied to ~/.distill_keys/"
+        echo "export DDNS_API_KEY=$(cat ~/.distill_keys/ddns_api.key)" >> ~/.bashrc
+        echo "DDNS_API_KEY environment variable has been added to .bashrc"
+    else
+        echo "ddns_api.key file not found at the provided path."
+    fi
 else
     echo "You chose to skip providing keys."
     echo "Please ensure you place the 'bot.key', 'slack_app_token' and 'slack_bot_token' files in the ~/.distill_keys/ directory."
@@ -219,6 +229,7 @@ else
     echo "export DISCORD_BOT_KEY=\$(cat ~/.distill_keys/bot.key)"
     echo "export SLACK_BOT_TOKEN=\$(cat ~/.distill_keys/slack_bot_token)"
     echo "export SLACK_APP_TOKEN=\$(cat ~/.distill_keys/slack_app_token)"
+    echo "export DDNS_API_KEY=\$(cat ~/.distill_keys/ddns_api.key)"
     echo "The project will not function correctly without these keys."
 fi
 

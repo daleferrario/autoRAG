@@ -1,0 +1,43 @@
+services:
+  namecheap_dns_updater:
+    image: ajferrario/namecheap-dns-updater
+    container_name: namecheap_dns_updater
+    restart: always
+    environment:
+      - DDNS_API_KEY=${DDNS_API_KEY}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+  reverse_proxy:
+    image: nginx:latest
+    container_name: reverse_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${NGINX_CONF_PATH}:/etc/nginx/nginx.conf
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/html
+    networks:
+      - distill_network
+    restart: always
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certs:/etc/letsencrypt
+      - webroot:/var/www/html
+    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/html && docker exec reverse_proxy nginx -s reload; sleep 12h & wait $${!}; done;"
+    networks:
+      - distill_network
+    depends_on:
+      - namecheap_dns_updater
+      - reverse_proxy
+    restart: always
+
+networks:
+  distill_network:
+    external: true
+
+volumes:
+  certs:
+  webroot:
