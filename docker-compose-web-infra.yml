@@ -1,37 +1,52 @@
 services:
-  namecheap_dns_updater:
-    image: ajferrario/namecheap-dns-updater
-    container_name: namecheap_dns_updater
-    restart: always
-    environment:
-      - DDNS_API_KEY=${DDNS_API_KEY}
-      - DOMAIN_NAME=${DOMAIN_NAME}
-  reverse_proxy:
-    image: nginx:latest
-    container_name: reverse_proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ${NGINX_CONF_PATH}:/etc/nginx/nginx.conf
-      - certs:/etc/letsencrypt
-      - webroot:/var/www/html
+  website:
+    image: ajferrario/distill-website
+    container_name: website
     networks:
       - distill_network
     restart: always
 
+  namecheap_dns_updater:
+    image: ajferrario/namecheap-dns-updater:latest
+    container_name: namecheap_dns_updater
+    restart: always
+    networks:
+      - distill_network
+    environment:
+      - DDNS_API_KEY=${DDNS_API_KEY}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+
+  reverse_proxy:
+    image: ajferrario/reverse-proxy:latest
+    container_name: reverse_proxy
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginx:/etc/nginx/
+      - certs:/etc/letsencrypt
+      - challenge:/var/www/certbot
+    networks:
+      - distill_network
+    restart: always
+    depends_on:
+      - website
+
   certbot:
-    image: certbot/certbot
+    image: ajferrario/certbot:latest
     container_name: certbot
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
     volumes:
       - certs:/etc/letsencrypt
-      - webroot:/var/www/html
-    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/html && docker exec reverse_proxy nginx -s reload; sleep 12h & wait $${!}; done;"
+      - challenge:/var/www/certbot
     networks:
       - distill_network
     depends_on:
       - namecheap_dns_updater
-      - reverse_proxy
     restart: always
 
 networks:
@@ -40,4 +55,5 @@ networks:
 
 volumes:
   certs:
-  webroot:
+  challenge:
+  nginx:

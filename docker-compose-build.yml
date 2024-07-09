@@ -1,12 +1,30 @@
-version: '3.8'
-
 services:
+  certbot:
+    build:
+      context: ./services/certbot
+    image: ajferrario/certbot:latest
+
   discord_bot:
     build:
       context: ./services/discord_bot
     image: ajferrario/distill-discord-bot:latest
+
+  namecheap_dns_updater:
+    build:
+      context: ./services/namecheap_dns_updater
+    image: ajferrario/namecheap-dns-updater:latest
+  
+  reverse_proxy:
+    build:
+      context: ./services/reverse_proxy
+    image: ajferrario/reverse-proxy:latest
   
   slack_app:
     build:
       context: ./services/slack_app
     image: ajferrario/distill-slack-app:latest
+
+  website:
+    build:
+      context: ./services/website
+    image: ajferrario/distill-website:latest
