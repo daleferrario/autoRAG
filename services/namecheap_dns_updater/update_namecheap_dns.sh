@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Configuration
-HOSTNAME_WILDCARD="sub"  # The subdomain you want to update, e.g., *.example.com
-HOSTNAME_BASE=""  # The base domain
+HOSTNAME_WILDCARD="*"  # The subdomain you want to update, e.g., *.example.com
+HOSTNAME_BASE="@"      # The base domain, typically '@' represents the root domain
 
 # Ensure DOMAIN_NAME and DDNS_API_KEY are set
 if [ -z "$DOMAIN_NAME" ] || [ -z "$DDNS_API_KEY" ]; then
@@ -18,28 +18,37 @@ if [ -z "$CURRENT_IP" ]; then
 fi
 echo "[$(date)] Current IP address: ${CURRENT_IP}"
 
-# Function to update DNS record
-update_dns_record() {
-  local host=$1
-  RESPONSE=$(curl -s "https://dynamicdns.park-your-domain.com/update?host=${host}&domain=${DOMAIN_NAME}&password=${DDNS_API_KEY}&ip=${CURRENT_IP}")
-  echo "[$(date)] DNS update response for ${host}${DOMAIN_NAME}: $RESPONSE"
-}
+# Get the current IP address from DNS
+DNS_IP=$(dig +short ${DOMAIN_NAME})
+if [ -z "$DNS_IP" ]; then
+  echo "[$(date)] Failed to retrieve DNS IP address for ${DOMAIN_NAME}."
+  exit 1
+fi
+echo "DNS_IP found: $DNS_IP"
 
-# Function to check if the current IP matches the DNS record
-check_dns_record() {
-  local host=$1
-  DNS_IP=$(dig +short ${host}${DOMAIN_NAME})
-  if [ -z $host ]; then
-    host="@"
-  fi
-  if [ "$CURRENT_IP" = "$DNS_IP" ]; then
-    echo "[$(date)] IP address for ${host}${DOMAIN_NAME} has not changed. Current IP: $CURRENT_IP"
-  else
-    echo "[$(date)] IP address for ${host}${DOMAIN_NAME} has changed. Updating DNS record."
-    update_dns_record $host
-  fi
-}
+if [ "$CURRENT_IP" = "$DNS_IP" ]; then
+  echo "[$(date)] IP address for ${DOMAIN_NAME} has not changed. Current IP: $CURRENT_IP"
+else
+  echo "[$(date)] IP address for ${DOMAIN_NAME} has changed. Updating DNS record."
 
-# Check DNS records and update if necessary
-check_dns_record "$HOSTNAME_WILDCARD."
-check_dns_record $HOSTNAME_BASE
+  # Update base domain
+  RESPONSE_BASE=$(curl -s "https://dynamicdns.park-your-domain.com/update?host=${HOSTNAME_BASE}&domain=${DOMAIN_NAME}&password=${DDNS_API_KEY}&ip=${CURRENT_IP}")
+  echo "[$(date)] DNS update response for ${HOSTNAME_BASE}.${DOMAIN_NAME}: $RESPONSE_BASE"
+fi
+
+DNS_IP=$(dig +short sub.${DOMAIN_NAME})
+if [ -z "$DNS_IP" ]; then
+  echo "[$(date)] Failed to retrieve DNS IP address for sub.${DOMAIN_NAME}."
+  exit 1
+fi
+echo "DNS_IP found: $DNS_IP"
+
+if [ "$CURRENT_IP" = "$DNS_IP" ]; then
+  echo "[$(date)] IP address for sub.${DOMAIN_NAME} has not changed. Current IP: $CURRENT_IP"
+else
+  echo "[$(date)] IP address for sub.${DOMAIN_NAME} has changed. Updating DNS record."
+
+  # Update wildcard subdomain
+  RESPONSE_WILDCARD=$(curl -s "https://dynamicdns.park-your-domain.com/update?host=${HOSTNAME_WILDCARD}&domain=${DOMAIN_NAME}&password=${DDNS_API_KEY}&ip=${CURRENT_IP}")
+  echo "[$(date)] DNS update response for ${HOSTNAME_WILDCARD}.${DOMAIN_NAME}: $RESPONSE_WILDCARD"
+fi
