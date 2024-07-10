@@ -4,8 +4,6 @@ services:
     environment:
       - IS_PERSISTENT=TRUE
     container_name: chromadb
-    ports:
-      - "8000:8000"
     volumes:
       - chroma_volume:/chroma/chroma
     networks:
@@ -15,8 +13,6 @@ services:
   ollama:
     image: ollama/ollama
     container_name: ollama
-    ports:
-      - "11434:11434"
     volumes:
       - ollama_volume:/root/.ollama
     networks:
@@ -45,26 +41,26 @@ services:
       depends_on:
         - ollama
 
-  discord_bot:
-    image: ajferrario/distill-discord-bot
-    environment:
-      REST_SERVER_PORT: 8001
-      DISCORD_BOT_KEY: ${DISCORD_BOT_KEY}
-    container_name: discord_bot
-    networks:
-      - distill_network
-    restart: always
+  # discord_bot:
+  #   image: ajferrario/distill-discord-bot
+  #   environment:
+  #     REST_SERVER_PORT: 8001
+  #     DISCORD_BOT_KEY: ${DISCORD_BOT_KEY}
+  #   container_name: discord_bot
+  #   networks:
+  #     - distill_network
+  #   restart: always
   
-  slack_app:
-    image: ajferrario/distill-slack-app
-    environment:
-      REST_SERVER_PORT: 8001
-      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
-      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN}
-    container_name: slack_app
-    networks:
-      - distill_network
-    restart: always
+  # slack_app:
+  #   image: ajferrario/distill-slack-app
+  #   environment:
+  #     REST_SERVER_PORT: 8001
+  #     SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+  #     SLACK_APP_TOKEN: ${SLACK_APP_TOKEN}
+  #   container_name: slack_app
+  #   networks:
+  #     - distill_network
+  #   restart: always
 
 networks:
   distill_network:
