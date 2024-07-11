@@ -250,8 +250,8 @@ else
     echo "export SLACK_BOT_TOKEN=\$(cat ~/.distill_keys/slack_bot_token)"
     echo "export SLACK_APP_TOKEN=\$(cat ~/.distill_keys/slack_app_token)"
     echo "export DDNS_API_KEY=\$(cat ~/.distill_keys/ddns_api.key)"
-    echo "export CF_CERT_PATH=~/.distill_keys/distill-ai-origin-cert.pem"
-    echo "export CF_PRIVATE_KEY_PATH=~/.distill_keys/distill-ai-origin-private.pem"
+    echo "export CF_CERT_PATH=\"~/.distill_keys/distill-ai-origin-cert.pem\""
+    echo "export CF_PRIVATE_KEY_PATH=\"~/.distill_keys/distill-ai-origin-private.pem\""
     echo "The project will not function correctly without these keys."
 fi
 
