@@ -12,6 +12,8 @@ distill-ai.cloud {
 	map {http.request.host} {subdomain} {
 		~(.*)\.distill-ai\.cloud$ "${1}"
 	}
-	reverse_proxy anythingllm.{subdomain}:3001 {
+	reverse_proxy anythingllm.{subdomain}:3001
+	handle_errors {
+		respond "It's a problem!"
 	}
 }
