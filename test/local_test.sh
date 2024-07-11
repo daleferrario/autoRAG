@@ -39,14 +39,14 @@ while getopts ":c:d:w:" opt; do
 done
 
 if [ -z "$CUSTOMER1_ENV_FILE" ] ; then
-  CUSTOMER1_ENV_FILE="$SCRIPT_DIR/DGMtest.env"
+  CUSTOMER1_ENV_FILE="$SCRIPT_DIR/develop-great-managers.env"
 fi
 echo "Using CUSTOMER1_ENV_FILE: $CUSTOMER1_ENV_FILE"
 source $CUSTOMER1_ENV_FILE
 CUSTOMER1_ID=$CUSTOMER_ID
 
 if [ -z "$CUSTOMER2_ENV_FILE" ] ; then
-  CUSTOMER2_ENV_FILE="$SCRIPT_DIR/discord_test.env"
+  CUSTOMER2_ENV_FILE="$SCRIPT_DIR/test-customer.env"
 fi
 echo "Using CUSTOMER2_ENV_FILE: $CUSTOMER2_ENV_FILE"
 source $CUSTOMER2_ENV_FILE
