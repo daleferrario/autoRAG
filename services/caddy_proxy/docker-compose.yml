@@ -1,0 +1,23 @@
+services:
+  caddy:
+    build: .
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    restart: always
+    networks:
+      - distill_network
+    volumes:
+      - caddy_data:/data
+      - ${CF_CERT_PATH}:/certs/certificate.pem
+      - ${CF_PRIVATE_KEY_PATH}:/certs/key.pem
+
+volumes:
+  caddy_data:
+  caddy_certs:
+
+networks:
+  distill_network:
+    external: true

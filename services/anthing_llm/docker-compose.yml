@@ -1,10 +1,7 @@
-version: '3.8'
 services:
   anythingllm:
     image: mintplexlabs/anythingllm
-    container_name: anythingllm
-    ports:
-    - "3001:3001"
+    container_name: anythingllm.${CUSTOMER_ID}
     cap_add:
       - SYS_ADMIN
     environment:

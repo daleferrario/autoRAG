@@ -1,0 +1,9 @@
+services:
+  cloudflare_ddns:
+    build: .
+    container_name: cloudflare_ddns
+    environment:
+      - CF_API_TOKEN=${CF_API_TOKEN}
+      - CF_ZONE_ID=${CF_ZONE_ID}
+      - RECORD_NAMES=${RECORD_NAMES}
+    restart: always

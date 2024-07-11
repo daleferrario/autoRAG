@@ -222,14 +222,36 @@ if prompt_user "Do you want to provide paths for needed key files now?"; then
     else
         echo "ddns_api.key file not found at the provided path."
     fi
+    # Prompt user for CF_ORIGIN_CERT path
+    read -p "Please provide the path to distill-ai-origin-cert.pem file: " CF_CERT_PATH
+    if [ -f "$CF_CERT_PATH" ]; then
+        cp "$CF_CERT_PATH" ~/.distill_keys/
+        echo "ddns_api.key has been copied to ~/.distill_keys/"
+        echo "export CF_CERT_PATH=$CF_CERT_PATH" >> ~/.bashrc
+        echo "CF_CERT_PATH environment variable has been added to .bashrc"
+    else
+        echo "distill-ai-origin-cert.pem file not found at the provided path."
+    fi
+    # Prompt user for CF_ORIGIN_PRIVATE_KEY path
+    read -p "Please provide the path to distill-ai-origin-private.pem file: " CF_PRIVATE_KEY_PATH
+    if [ -f "$CF_PRIVATE_KEY_PATH" ]; then
+        cp "$CF_PRIVATE_KEY_PATH" ~/.distill_keys/
+        echo "ddns_api.key has been copied to ~/.distill_keys/"
+        echo "export CF_PRIVATE_KEY_PATH=$CF_PRIVATE_KEY_PATH" >> ~/.bashrc
+        echo "CF_PRIVATE_KEY_PATH environment variable has been added to .bashrc"
+    else
+        echo "distill-ai-origin-private.pem file not found at the provided path."
+    fi
 else
     echo "You chose to skip providing keys."
-    echo "Please ensure you place the 'bot.key', 'slack_app_token' and 'slack_bot_token' files in the ~/.distill_keys/ directory."
+    echo "Please ensure you place the 'bot.key', 'slack_app_token', 'slack_bot_token', 'distill-ai-origin-cert.pem' and 'distill-ai-origin-private.pem' files in the ~/.distill_keys/ directory."
     echo "Then add the following lines to your ~/.bashrc file:"
     echo "export DISCORD_BOT_KEY=\$(cat ~/.distill_keys/bot.key)"
     echo "export SLACK_BOT_TOKEN=\$(cat ~/.distill_keys/slack_bot_token)"
     echo "export SLACK_APP_TOKEN=\$(cat ~/.distill_keys/slack_app_token)"
     echo "export DDNS_API_KEY=\$(cat ~/.distill_keys/ddns_api.key)"
+    echo "export CF_CERT_PATH=~/.distill_keys/distill-ai-origin-cert.pem"
+    echo "export CF_PRIVATE_KEY_PATH=~/.distill_keys/distill-ai-origin-private.pem"
     echo "The project will not function correctly without these keys."
 fi
 

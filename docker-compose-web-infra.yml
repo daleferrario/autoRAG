@@ -6,54 +6,36 @@ services:
       - distill_network
     restart: always
 
-  namecheap_dns_updater:
-    image: ajferrario/namecheap-dns-updater:latest
-    container_name: namecheap_dns_updater
+  cloudflare_ddns:
+    image: ajferrario/cloudflare-ddns
+    container_name: cloudflare_ddns
     restart: always
     networks:
       - distill_network
     environment:
-      - DDNS_API_KEY=${DDNS_API_KEY}
-      - DOMAIN_NAME=${DOMAIN_NAME}
+      - CF_API_TOKEN=${CF_API_TOKEN}
+      - CF_ZONE_ID=${CF_ZONE_ID}
+      - RECORD_NAMES=${RECORD_NAMES}
 
-  reverse_proxy:
-    image: ajferrario/reverse-proxy:latest
-    container_name: reverse_proxy
-    environment:
-      - DOMAIN_NAME=${DOMAIN_NAME}
+  caddy:
+    image: ajferrario/caddy-proxy
+    container_name: caddy_proxy
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - nginx:/etc/nginx/
-      - certs:/etc/letsencrypt
-      - challenge:/var/www/certbot
+      - "443:443/udp"
+    restart: always
     networks:
       - distill_network
-    restart: always
-    depends_on:
-      - website
-
-  certbot:
-    image: ajferrario/certbot:latest
-    container_name: certbot
-    environment:
-      - DOMAIN_NAME=${DOMAIN_NAME}
-      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
     volumes:
-      - certs:/etc/letsencrypt
-      - challenge:/var/www/certbot
-    networks:
-      - distill_network
-    depends_on:
-      - namecheap_dns_updater
-    restart: always
+      - caddy_data:/data
+      - ${CF_CERT_PATH}:/certs/certificate.pem
+      - ${CF_PRIVATE_KEY_PATH}:/certs/key.pem
 
 networks:
   distill_network:
     external: true
 
 volumes:
-  certs:
-  challenge:
-  nginx:
+  caddy_data:
+  caddy_certs:
