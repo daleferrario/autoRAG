@@ -17,7 +17,7 @@ services:
       - CF_ZONE_ID=${CF_ZONE_ID}
       - RECORD_NAMES=${RECORD_NAMES}
 
-  caddy:
+  caddy_proxy:
     image: ajferrario/caddy-proxy
     container_name: caddy_proxy
     ports:
