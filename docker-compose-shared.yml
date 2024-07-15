@@ -52,15 +52,14 @@ services:
       - "8001:8001"
     restart: always
 
-  # discord_bot:
-  #   image: ajferrario/distill-discord-bot
-  #   environment:
-  #     REST_SERVER_PORT: 8001
-  #     DISCORD_BOT_KEY: ${DISCORD_BOT_KEY}
-  #   container_name: discord_bot
-  #   networks:
-  #     - distill_network
-  #   restart: always
+  discord_bot:
+    image: ajferrario/distill-discord-bot
+    environment:
+      DISCORD_BOT_KEY: ${DISCORD_BOT_KEY}
+    container_name: discord_bot
+    networks:
+      - distill_network
+    restart: always
   
   # slack_app:
   #   image: ajferrario/distill-slack-app

@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 "discord.py" = "*"
 aiohttp = "*"
+redis = {extras = ["hiredis"], version = "*"}
 
 [dev-packages]
 
