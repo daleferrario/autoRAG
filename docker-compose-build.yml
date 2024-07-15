@@ -9,6 +9,11 @@ services:
       context: ./services/cloudflare_ddns
     image: ajferrario/cloudflare-ddns:latest
 
+  configure_customer:
+    build:
+      context: ./services/configure_customer
+    image: ajferrario/distill-configure-customer:latest
+
   discord_bot:
     build:
       context: ./services/discord_bot

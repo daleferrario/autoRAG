@@ -88,7 +88,6 @@ CUSTOMER_ID=$CUSTOMER2_ID docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" -p "
 docker compose -f "$DOCKER_COMPOSE_SHARED_PATH" down -v
 docker compose -f "$DOCKER_COMPOSE_WEB_INFRA_PATH" --env-file $WEB_INFRA_ENV_FILE down -v
 
-
 # Pull latest images
 echo "Pulling latest images"
 CUSTOMER_ID=$CUSTOMER1_ID docker compose -f "$DOCKER_COMPOSE_CUSTOMER_PATH" pull

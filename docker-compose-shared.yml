@@ -41,6 +41,17 @@ services:
       depends_on:
         - ollama
 
+  customer_db:
+    image: redis/redis-stack:latest
+    container_name: customer_db
+    volumes:
+      - customer_db_volume:/data
+    networks:
+      - distill_network
+    ports:
+      - "8001:8001"
+    restart: always
+
   # discord_bot:
   #   image: ajferrario/distill-discord-bot
   #   environment:
@@ -70,3 +81,4 @@ networks:
 volumes:
   chroma_volume:
   ollama_volume:
+  customer_db_volume:

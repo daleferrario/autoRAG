@@ -28,6 +28,19 @@ services:
       - distill_network
     restart: always
 
+  configure_customer:
+    image: ajferrario/distill-configure-customer
+    container_name: configure_customer
+    environment:
+      - API_KEY=${API_KEY}
+      - CUSTOMER_ID=${CUSTOMER_ID}
+      - MANAGER_ACCOUNT_USERNAME=${MANAGER_ACCOUNT_USERNAME}
+      - ADMIN_ACCOUNT_PASSWORD=${ADMIN_ACCOUNT_PASSWORD}
+      - DISCORD_SERVER_IDS=${DISCORD_SERVER_IDS}
+      - SLACK_WORKSPACE_IDS=${SLACK_WORKSPACE_IDS}
+    networks:
+      - distill_network
+
 volumes:
   anythingllm_storage:
 

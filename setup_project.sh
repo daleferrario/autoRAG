@@ -212,21 +212,21 @@ if prompt_user "Do you want to provide paths for needed key files now?"; then
     else
         echo "slack_app_token file not found at the provided path."
     fi
-    # Prompt user for DDNS_API_KEY path
-    read -p "Please provide the path to ddns_api.key file: " DDNS_API_KEY_PATH
-    if [ -f "$DDNS_API_KEY_PATH" ]; then
-        cp "$DDNS_API_KEY_PATH" ~/.distill_keys/
-        echo "ddns_api.key has been copied to ~/.distill_keys/"
-        echo "export DDNS_API_KEY=$(cat ~/.distill_keys/ddns_api.key)" >> ~/.bashrc
-        echo "DDNS_API_KEY environment variable has been added to .bashrc"
+    # Prompt user for CF_API_TOKEN path
+    read -p "Please provide the path to cf_api_token file: " CF_API_TOKEN_PATH
+    if [ -f "$CF_API_TOKEN_PATH" ]; then
+        cp "$CF_API_TOKEN_PATH" ~/.distill_keys/
+        echo "cf_api_token has been copied to ~/.distill_keys/"
+        echo "export CF_API_TOKEN=$(cat ~/.distill_keys/cf_api_token)" >> ~/.bashrc
+        echo "CF_API_TOKEN environment variable has been added to .bashrc"
     else
-        echo "ddns_api.key file not found at the provided path."
+        echo "cf_api_token file not found at the provided path."
     fi
     # Prompt user for CF_ORIGIN_CERT path
     read -p "Please provide the path to distill-ai-origin-cert.pem file: " CF_CERT_PATH
     if [ -f "$CF_CERT_PATH" ]; then
         cp "$CF_CERT_PATH" ~/.distill_keys/
-        echo "ddns_api.key has been copied to ~/.distill_keys/"
+        echo "distill-ai-origin-cert.pem has been copied to ~/.distill_keys/"
         echo "export CF_CERT_PATH=$CF_CERT_PATH" >> ~/.bashrc
         echo "CF_CERT_PATH environment variable has been added to .bashrc"
     else
@@ -236,7 +236,7 @@ if prompt_user "Do you want to provide paths for needed key files now?"; then
     read -p "Please provide the path to distill-ai-origin-private.pem file: " CF_PRIVATE_KEY_PATH
     if [ -f "$CF_PRIVATE_KEY_PATH" ]; then
         cp "$CF_PRIVATE_KEY_PATH" ~/.distill_keys/
-        echo "ddns_api.key has been copied to ~/.distill_keys/"
+        echo "distill-ai-origin-private.pem has been copied to ~/.distill_keys/"
         echo "export CF_PRIVATE_KEY_PATH=$CF_PRIVATE_KEY_PATH" >> ~/.bashrc
         echo "CF_PRIVATE_KEY_PATH environment variable has been added to .bashrc"
     else
