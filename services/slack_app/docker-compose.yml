@@ -1,0 +1,15 @@
+services:
+  slack_app:
+    build: .
+    environment:
+      SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN}
+      SLACK_APP_TOKEN: ${SLACK_APP_TOKEN}
+    container_name: slack_app
+    networks:
+      - distill_network
+    restart: always
+
+
+networks:
+  distill_network:
+    external: true
