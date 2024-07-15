@@ -51,11 +51,8 @@ async def send_question_to_anythingllm(guild_id: int, question: str) -> str:
     "message": question,
     "mode": "query"
     }
-    # TODO: remove the hack of treating a guild_id as a customer_id. In future there's probably a customerID lookup here based
-    # on the guild ID.
     try:
         async with aiohttp.ClientSession() as session:
-            # Create Manager User
             async with session.post(url + f"/workspace/{customer_id}/chat", headers=headers, json=query_payload, ssl=False) as response:
                 if response.status == 200:
                     resp = await response.json()
